@@ -53,7 +53,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarEmoji}>👧🏻</Text>
+              <Image source={require('../assets/icons/user-img.png')} style={styles.avatarEmoji} />
             </View>
             <View>
               <Text style={styles.greeting}>Good morning</Text>
@@ -63,7 +63,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           <View style={styles.locationChip}>
             <Image source={require('../assets/icons/map-pin.png')} style={styles.searchIcon} />
             <Text style={styles.locationText}>My Address</Text>
-            <Text style={styles.chevron}> ∨</Text>
+            <Image source={require('../assets/icons/arrow-down.png')} style={styles.chevron} />
           </View>
         </View>
 
@@ -95,58 +95,61 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
               </TouchableOpacity>
             </View> */}
           </View>
-
-          {/* Categories */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Categories 😋</Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow}>
-            {CATEGORIES.map(cat => (
-              <TouchableOpacity key={cat.id} style={styles.categoryItem} onPress={onAllProduct}>
-                <View style={styles.categoryCircle}>
+          <View style={{ backgroundColor: "#FFF" }}>
+            {/* Categories */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Categories</Text>
+              <Image source={require('../assets/Face-Savoring-Food.png')} style={styles.smileImg} />
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow}>
+              {CATEGORIES.map(cat => (
+                <TouchableOpacity key={cat.id} style={styles.categoryItem} onPress={onAllProduct}>
+                  {/* <View style={styles.categoryCircle}> */}
                   <Image source={cat.image} style={styles.categoryImage} />
-                </View>
-                <Text style={styles.categoryLabel}>{cat.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Best Selling */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Best selling 🔥</Text>
-            <TouchableOpacity onPress={onAllProduct}>
-              <Text style={styles.seeAll}>See all</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.productRow}>
-            {BEST_SELLING.map(product => {
-              const isLamb = product.name.includes('Lamb');
-              return (
-                <TouchableOpacity
-                  key={product.id}
-                  style={styles.productCard}
-                  onPress={() => onProductPress(product)}
-                >
-                  <View style={styles.productImageBox}>
-                    {/* <MeatImage type={product.type} size={85} /> */}
-                    <Image source={product.image} style={styles.productImage} />
-                    <TouchableOpacity style={styles.heartCircle}>
-                      <Text style={[styles.heartIcon, isLamb && styles.heartIconActive]}>
-                        {isLamb ? '♥' : '♡'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.productName}>{product.name}</Text>
-                  <View style={styles.productFooter}>
-                    <Text style={styles.productPrice}>{product.price}</Text>
-                    <TouchableOpacity style={styles.addBtn} onPress={() => onProductPress(product)}>
-                      <Text style={styles.addBtnText}>+</Text>
-                    </TouchableOpacity>
-                  </View>
+                  {/* </View> */}
+                  <Text style={styles.categoryLabel}>{cat.label}</Text>
                 </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+              ))}
+            </ScrollView>
+
+            {/* Best Selling */}
+            <View style={[styles.sectionHeader, { justifyContent: "space-between" }]}>
+              <Text style={styles.sectionTitle}>Best selling 🔥</Text>
+              <TouchableOpacity onPress={onAllProduct}>
+                <Text style={styles.seeAll}>See all</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.productRow}>
+              {BEST_SELLING.map(product => {
+                const isLamb = product.name.includes('Lamb');
+                return (
+                  <TouchableOpacity
+                    key={product.id}
+                    style={styles.productCard}
+                    onPress={() => onProductPress(product)}
+                  >
+                    <View style={styles.productImageBox}>
+                      {/* <MeatImage type={product.type} size={85} /> */}
+                      <Image source={product.image} style={styles.productImage} />
+                      <TouchableOpacity style={styles.heartCircle}>
+                        <Image source={require('../assets/icons/heart-img.png')} style={[{ width: 15, height: 15, resizeMode: "contain" }, isLamb ? { tintColor: "#23AA49" } : {}]} />
+                        {/* <Text style={[styles.heartIcon, isLamb && styles.heartIconActive]}>
+                          {isLamb ? '♥' : '♡'}
+                        </Text> */}
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.productName}>{product.name}</Text>
+                    <View style={styles.productFooter}>
+                      <Text style={styles.productPrice}>{product.price}</Text>
+                      <TouchableOpacity style={styles.addBtn} onPress={() => onProductPress(product)}>
+                        <Text style={styles.addBtnText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
         </ScrollView>
 
         {/* Curved Bottom Navigation Bar */}
@@ -216,6 +219,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a1a1a',
   },
+  smileImg: {
+    width: 17,
+    height: 17,
+    resizeMode: "contain",
+    marginLeft: 4
+  },
   promoBannerImage: {
     width: "100%",
     height: 134,
@@ -227,9 +236,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   categoryImage: {
-    width: 72,
-    height: 72,
+    width: 65,
+    height: 65,
     resizeMode: 'contain',
+    marginBottom: 12
   },
   navIcon: {
     width: 24,
@@ -248,7 +258,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F3F5F7',
     // borderTopLeftRadius: 36,
     // borderTopRightRadius: 36,
     overflow: 'hidden',
@@ -276,33 +286,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarEmoji: {
-    fontSize: 24,
+    width: 32,
+    resizeMode: "contain"
   },
   greeting: {
-    color: '#979899',
+    color: '#7E8A97',
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: 'DMSans-Medium',
   },
   userName: {
-    color: '#1a1a1a',
-    fontWeight: '700',
+    color: '#06161C',
     fontSize: 16,
     marginTop: 2,
+    fontFamily: 'DMSans-Medium',
   },
   locationChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#e8ecef',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
-    elevation: 1,
+    flexDirection: "row",
+    height: 54,
+    width: 144,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 100,
   },
   locationPin: {
     width: 16,
@@ -320,30 +325,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   locationText: {
-    color: '#1a1a1a',
-    fontSize: 13,
-    fontWeight: '600',
+    color: '#06161C',
+    fontSize: 12,
+    fontFamily: 'DMSans-Medium',
   },
   chevron: {
-    color: '#979899',
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginLeft: 4,
+    height: 8,
+    resizeMode: "contain",
+    width: 8,
+    marginLeft: 6,
+    tintColor: "#979899",
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    marginHorizontal: 16,
-    borderRadius: 30,
+    flexDirection: "row",
+    width: "91%",
+    height: 50,
+    borderRadius: 100,
+    backgroundColor: "#FFF",
+    alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 4,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    marginHorizontal: 16,
+    marginBottom: 24
+
   },
   searchIcon: {
     height: 15,
@@ -419,20 +422,19 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 14,
+    paddingHorizontal: 20,
+    marginBottom: 19,
+    alignItems: "center"
   },
   sectionTitle: {
-    color: '#1a1a1a',
-    fontSize: 17,
-    fontWeight: '700',
+    color: '#06161C',
+    fontSize: 18,
+    fontFamily: 'DMSans-Bold',
   },
   seeAll: {
     color: '#23AA49',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'DMSans-Medium',
   },
   categoriesRow: {
     paddingLeft: 16,
@@ -440,7 +442,9 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
-    marginRight: 20,
+    width: 73,
+    marginRight: 12
+    // marginRight: 20,
   },
   categoryCircle: {
     width: 72,
@@ -459,9 +463,9 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   categoryLabel: {
-    color: '#32343E',
-    fontSize: 13,
-    fontWeight: '600',
+    color: '#06161C',
+    fontSize: 14,
+    fontFamily: 'DMSans-Medium',
   },
   productRow: {
     paddingLeft: 16,
@@ -513,10 +517,9 @@ const styles = StyleSheet.create({
     color: 'green',
   },
   productName: {
-    color: '#1a1a1a',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 6,
+    color: '#1B1C1E',
+    fontSize: 13,
+    fontFamily: 'DMSans-Bold',
   },
   productFooter: {
     flexDirection: 'row',
@@ -524,9 +527,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productPrice: {
-    color: '#FF4B4B',
-    fontSize: 14,
-    fontWeight: '700',
+    color: '#FF324B',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
   },
   addBtn: {
     width: 32,
@@ -594,8 +597,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
+    bottom: -8,
+    // right: 0,
     backgroundColor: '#FF4B4B',
     width: 18,
     height: 18,

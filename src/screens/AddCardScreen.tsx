@@ -1,8 +1,28 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, KeyboardAvoidingView, Platform, Switch, Dimensions,
+  TextInput, KeyboardAvoidingView, Platform, Dimensions,
 } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const cardSchema = Yup.object().shape({
+  cardName: Yup.string()
+    .min(2, 'Name must be at least 2 characters')
+    .required('Cardholder name is required'),
+  cardNumber: Yup.string()
+    .test('len', 'Card number must be exactly 16 digits', val => {
+      const cleanVal = (val || '').replace(/\s/g, '');
+      return cleanVal.length === 16;
+    })
+    .required('Card number is required'),
+  expiry: Yup.string()
+    .matches(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, 'MM/YY format')
+    .required('Expiry date is required'),
+  cvv: Yup.string()
+    .matches(/^\d{3}$/, 'Exactly 3 digits')
+    .required('CVV is required'),
+});
 
 const { width } = Dimensions.get('window');
 
@@ -11,13 +31,54 @@ interface AddCardScreenProps {
   onSave: () => void;
 }
 
-const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName]     = useState('');
-  const [expiry, setExpiry]         = useState('');
-  const [cvv, setCvv]               = useState('');
-  const [saveCard, setSaveCard]     = useState(true);
+const CustomSwitch: React.FC<{ value: boolean; onValueChange: (val: boolean) => void }> = ({ value, onValueChange }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => onValueChange(!value)}
+      style={[
+        styles.switchTrack,
+        value ? styles.switchTrackActive : styles.switchTrackInactive
+      ]}
+    >
+      <View style={styles.switchThumb} />
+    </TouchableOpacity>
+  );
+};
 
+// --- Custom Field Icons ---
+const UserFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.userHead} />
+    <View style={styles.userBody} />
+  </View>
+);
+
+const CardFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.cardOutline}>
+      <View style={styles.cardLine} />
+    </View>
+  </View>
+);
+
+const CalendarFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.calendarOutline}>
+      <View style={styles.calendarHeaderLine} />
+    </View>
+  </View>
+);
+
+const LockFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.lockBody}>
+      <View style={styles.lockShackle} />
+    </View>
+  </View>
+);
+
+const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
   const formatCardNumber = (val: string) => {
     const digits = val.replace(/\D/g, '').slice(0, 16);
     return digits.replace(/(.{4})/g, '$1 ').trim();
@@ -29,10 +90,24 @@ const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
     return digits;
   };
 
-  const displayNumber = cardNumber || 'XXXX XXXX XXXX 8790';
-  const displayName   = cardName   || 'Jon';
-  const displayExpiry = expiry     || '02/30';
-  const displayCvv    = cvv        || '826';
+  const formik = useFormik({
+    initialValues: {
+      cardNumber: formatCardNumber('XXXX XXXX XXXX 5678'),
+      cardName: 'Jen',
+      expiry: '01/28',
+      cvv: '908',
+    },
+    validationSchema: cardSchema,
+    onSubmit: () => {
+      onSave();
+    },
+  });
+
+  const [saveCard, setSaveCard] = useState(true);
+
+  const displayCardNumber = formik.values.cardNumber || 'XXXX XXXX XXXX 8790';
+  const displayCardName = formik.values.cardName ? formik.values.cardName.toUpperCase() : 'RUSSELL AUSTIN';
+  const displayExpiry = formik.values.expiry ? formik.values.expiry.replace('/', ' / ') : '01 / 22';
 
   return (
     <KeyboardAvoidingView
@@ -41,11 +116,10 @@ const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <TouchableOpacity style={styles.backBtn} onPress={onBack} activeOpacity={0.7}>
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add Card</Text>
-        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
@@ -55,231 +129,463 @@ const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
       >
         {/* Card Preview */}
         <View style={styles.cardPreview}>
-          {/* Background circles */}
+          {/* Lighter green background circles */}
           <View style={styles.cardCircle1} />
           <View style={styles.cardCircle2} />
+          <View style={styles.cardCircle3} />
 
-          {/* Card logo top-right */}
-          <View style={styles.cardLogoRow}>
-            <View style={styles.masterLogoWrap}>
-              <View style={[styles.masterCircle, { backgroundColor: '#f39c12' }]} />
-              <View style={[styles.masterCircle, { backgroundColor: '#e74c3c', marginLeft: -10 }]} />
+          {/* Accent Diamonds */}
+          <View style={styles.redDiamond} />
+          <View style={styles.orangeDiamond} />
+
+          {/* Card Top Row */}
+          <View style={styles.cardTopRow}>
+            {/* Mastercard overlapping circles */}
+            <View style={styles.mastercardLogo}>
+              <View style={[styles.masterCircle, { backgroundColor: '#EB001B' }]} />
+              <View style={[styles.masterCircle, { backgroundColor: '#F79E1B', marginLeft: -12 }]} />
             </View>
+            {/* Ellipsis Menu */}
+            <Text style={styles.moreIcon}>⋮</Text>
           </View>
 
-          {/* Card number */}
-          <Text style={styles.cardNumberDisplay}>{displayNumber}</Text>
+          {/* Card Number */}
+          <Text style={styles.cardNumberDisplay}>{displayCardNumber}</Text>
 
-          {/* Card meta */}
+          {/* Card Meta Row */}
           <View style={styles.cardMetaRow}>
             <View>
               <Text style={styles.cardMetaLabel}>CARD HOLDER</Text>
-              <Text style={styles.cardMetaValue}>{displayName}</Text>
+              <Text style={styles.cardMetaValue}>{displayCardName}</Text>
             </View>
-            <View>
+            <View style={styles.expiryCol}>
               <Text style={styles.cardMetaLabel}>EXPIRES</Text>
               <Text style={styles.cardMetaValue}>{displayExpiry}</Text>
             </View>
-            <View>
-              <Text style={styles.cardMetaLabel}>CVV</Text>
-              <Text style={styles.cardMetaValue}>{displayCvv}</Text>
-            </View>
           </View>
         </View>
 
-        {/* Saved Cards Row */}
-        <View style={styles.savedCardsRow}>
-          {[
-            { color: '#e74c3c', color2: '#c0392b', number: '...5476' },
-            { color: '#1a6bb5', color2: '#154e87', number: '...5476', isVisa: true },
-          ].map((c, i) => (
-            <View key={i} style={[styles.savedCard, { backgroundColor: c.color }]}>
-              <View style={[styles.savedCardCircle, { backgroundColor: c.color2 }]} />
-              <Text style={styles.savedCardNum}>{c.number}</Text>
-              {c.isVisa
-                ? <Text style={styles.savedCardVisa}>VISA</Text>
-                : (
-                  <View style={styles.miniMasterRow}>
-                    <View style={[styles.miniMasterCircle, { backgroundColor: '#f39c12' }]} />
-                    <View style={[styles.miniMasterCircle, { backgroundColor: '#e74c3c', marginLeft: -6 }]} />
-                  </View>
-                )}
-            </View>
-          ))}
-        </View>
-
-        {/* Form */}
+        {/* Form Fields */}
         <View style={styles.formSection}>
-          <View style={styles.field}>
-            <Text style={styles.label}>CARD NUMBER</Text>
+          {/* Name on Card */}
+          <View style={[
+            styles.inputField,
+            formik.touched.cardName && formik.errors.cardName ? styles.inputFieldError : null
+          ]}>
+            <UserFieldIcon />
             <TextInput
-              style={styles.input}
-              value={cardNumber}
-              onChangeText={v => setCardNumber(formatCardNumber(v))}
-              placeholder="XXXX XXXX XXXX XXXX"
-              placeholderTextColor="#555"
+              style={styles.textInput}
+              value={formik.values.cardName}
+              onChangeText={formik.handleChange('cardName')}
+              onBlur={formik.handleBlur('cardName')}
+              placeholder="Name on card"
+              placeholderTextColor="#A1A1A1"
+              selectionColor="#23AA49"
+            />
+          </View>
+          {formik.touched.cardName && formik.errors.cardName && (
+            <Text style={styles.errorText}>{formik.errors.cardName}</Text>
+          )}
+
+          {/* Card Number */}
+          <View style={[
+            styles.inputField,
+            formik.touched.cardNumber && formik.errors.cardNumber ? styles.inputFieldError : null
+          ]}>
+            <CardFieldIcon />
+            <TextInput
+              style={styles.textInput}
+              value={formik.values.cardNumber}
+              onChangeText={v => formik.setFieldValue('cardNumber', formatCardNumber(v))}
+              onBlur={formik.handleBlur('cardNumber')}
+              placeholder="Card number"
+              placeholderTextColor="#A1A1A1"
+              selectionColor="#23AA49"
               keyboardType="number-pad"
-              selectionColor="#2ecc71"
             />
           </View>
+          {formik.touched.cardNumber && formik.errors.cardNumber && (
+            <Text style={styles.errorText}>{formik.errors.cardNumber}</Text>
+          )}
 
-          <View style={styles.field}>
-            <Text style={styles.label}>CARD HOLDER NAME</Text>
-            <TextInput
-              style={styles.input}
-              value={cardName}
-              onChangeText={setCardName}
-              placeholder="Jon"
-              placeholderTextColor="#555"
-              selectionColor="#2ecc71"
-            />
-          </View>
-
+          {/* Expiry & CVV side-by-side */}
           <View style={styles.rowFields}>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>EXPIRY DATE</Text>
-              <TextInput
-                style={styles.input}
-                value={expiry}
-                onChangeText={v => setExpiry(formatExpiry(v))}
-                placeholder="MM/YY"
-                placeholderTextColor="#555"
-                keyboardType="number-pad"
-                maxLength={5}
-                selectionColor="#2ecc71"
-              />
+            <View style={{ flex: 1 }}>
+              <View style={[
+                styles.inputField,
+                formik.touched.expiry && formik.errors.expiry ? styles.inputFieldError : null
+              ]}>
+                <CalendarFieldIcon />
+                <TextInput
+                  style={styles.textInput}
+                  value={formik.values.expiry}
+                  onChangeText={v => formik.setFieldValue('expiry', formatExpiry(v))}
+                  onBlur={formik.handleBlur('expiry')}
+                  placeholder="Expiry"
+                  placeholderTextColor="#A1A1A1"
+                  selectionColor="#23AA49"
+                  keyboardType="number-pad"
+                  maxLength={5}
+                />
+              </View>
+              {formik.touched.expiry && formik.errors.expiry && (
+                <Text style={styles.errorText}>{formik.errors.expiry}</Text>
+              )}
             </View>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>CVV</Text>
-              <TextInput
-                style={styles.input}
-                value={cvv}
-                onChangeText={v => setCvv(v.replace(/\D/g, '').slice(0, 3))}
-                placeholder="000"
-                placeholderTextColor="#555"
-                keyboardType="number-pad"
-                maxLength={3}
-                secureTextEntry
-                selectionColor="#2ecc71"
-              />
+
+            <View style={{ flex: 1 }}>
+              <View style={[
+                styles.inputField,
+                formik.touched.cvv && formik.errors.cvv ? styles.inputFieldError : null
+              ]}>
+                <LockFieldIcon />
+                <TextInput
+                  style={styles.textInput}
+                  value={formik.values.cvv}
+                  onChangeText={v => formik.setFieldValue('cvv', v.replace(/\D/g, '').slice(0, 3))}
+                  onBlur={formik.handleBlur('cvv')}
+                  placeholder="CVV"
+                  placeholderTextColor="#A1A1A1"
+                  selectionColor="#23AA49"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  secureTextEntry
+                />
+              </View>
+              {formik.touched.cvv && formik.errors.cvv && (
+                <Text style={styles.errorText}>{formik.errors.cvv}</Text>
+              )}
             </View>
           </View>
 
           {/* Save toggle */}
           <View style={styles.toggleRow}>
+            <CustomSwitch value={saveCard} onValueChange={setSaveCard} />
             <Text style={styles.toggleLabel}>Save this card</Text>
-            <Switch
-              value={saveCard}
-              onValueChange={setSaveCard}
-              trackColor={{ false: '#333', true: '#2ecc71' }}
-              thumbColor={saveCard ? '#fff' : '#888'}
-            />
           </View>
         </View>
       </ScrollView>
 
-      {/* Save Card Button */}
-      <TouchableOpacity style={styles.saveBtn} onPress={onSave} activeOpacity={0.85}>
+      {/* Save Button */}
+      <TouchableOpacity style={styles.saveBtn} onPress={() => formik.handleSubmit()} activeOpacity={0.85}>
         <Text style={styles.saveText}>Save Card</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 };
 
-const CARD_W = width - 40;
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingHorizontal: 16,
-    paddingTop: 20, paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 16,
+    position: 'relative',
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    position: 'absolute',
+    left: 24,
+    top: Platform.OS === 'ios' ? 60 : 20,
+    height: 40,
+    justifyContent: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
-  headerTitle: { color: '#1a1a1a', fontSize: 17, fontWeight: '700' },
-  scrollContent: { paddingBottom: 100 },
-
-  // Card preview
+  backArrow: {
+    color: '#000000',
+    fontSize: 28,
+    fontWeight: '300',
+    lineHeight: 30,
+  },
+  headerTitle: {
+    color: '#000000',
+    fontSize: 18,
+    fontFamily: 'DMSans-Bold',
+  },
+  scrollContent: {
+    paddingTop: 10,
+    paddingBottom: 100,
+  },
   cardPreview: {
-    marginHorizontal: 20, marginBottom: 20,
-    height: 180, borderRadius: 20,
-    backgroundColor: '#2ecc71',
-    padding: 20, overflow: 'hidden',
+    marginHorizontal: 24,
+    marginBottom: 28,
+    height: 200,
+    borderRadius: 20,
+    backgroundColor: '#23AA49', // Grass Green base
+    padding: 24,
+    overflow: 'hidden',
+    position: 'relative',
     justifyContent: 'space-between',
+    shadowColor: '#23AA49',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 6,
   },
   cardCircle1: {
-    position: 'absolute', width: 160, height: 160,
-    borderRadius: 80, backgroundColor: 'rgba(255,255,255,0.12)',
-    top: -40, right: -30,
+    position: 'absolute',
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#6CC51D', // Lighter lime green decoration
+    top: -30,
+    right: -30,
+    opacity: 0.9,
   },
   cardCircle2: {
-    position: 'absolute', width: 120, height: 120,
-    borderRadius: 60, backgroundColor: 'rgba(255,255,255,0.08)',
-    bottom: -20, left: 20,
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#6CC51D',
+    top: 20,
+    right: -55,
+    opacity: 0.9,
   },
-  cardLogoRow: { flexDirection: 'row', justifyContent: 'flex-end' },
-  masterLogoWrap: { flexDirection: 'row' },
-  masterCircle: { width: 28, height: 28, borderRadius: 14, opacity: 0.9 },
+  cardCircle3: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#6CC51D',
+    bottom: -40,
+    right: -10,
+    opacity: 0.9,
+  },
+  redDiamond: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    backgroundColor: '#FF6B6B',
+    transform: [{ rotate: '45deg' }],
+    top: 60,
+    right: 90,
+  },
+  orangeDiamond: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    backgroundColor: '#FFAA44',
+    transform: [{ rotate: '45deg' }],
+    bottom: 48,
+    right: 90,
+  },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mastercardLogo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  masterCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  moreIcon: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
   cardNumberDisplay: {
-    color: '#fff', fontSize: 18, fontWeight: '700',
-    letterSpacing: 2, marginTop: 14,
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontFamily: 'DMSans-Bold',
+    letterSpacing: 2,
+    marginTop: 10,
   },
   cardMetaRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
   },
-  cardMetaLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 9, letterSpacing: 0.5, marginBottom: 3 },
-  cardMetaValue: { color: '#fff', fontSize: 13, fontWeight: '700' },
-
-  // Saved cards mini row
-  savedCardsRow: {
-    flexDirection: 'row', paddingHorizontal: 20, gap: 12, marginBottom: 20,
+  cardMetaLabel: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 9,
+    fontFamily: 'DMSans-Regular',
+    letterSpacing: 0.5,
+    marginBottom: 4,
   },
-  savedCard: {
-    flex: 1, height: 56, borderRadius: 12,
-    justifyContent: 'center', alignItems: 'center',
-    overflow: 'hidden', position: 'relative',
+  cardMetaValue: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontFamily: 'DMSans-Bold',
   },
-  savedCardCircle: {
-    position: 'absolute', width: 40, height: 40,
-    borderRadius: 20, right: -8, opacity: 0.5,
+  expiryCol: {
+    alignItems: 'flex-end',
   },
-  savedCardNum: { color: '#fff', fontSize: 11, fontWeight: '600' },
-  savedCardVisa: { color: '#fff', fontSize: 13, fontWeight: '900', fontStyle: 'italic', letterSpacing: 1 },
-  miniMasterRow: { flexDirection: 'row' },
-  miniMasterCircle: { width: 16, height: 16, borderRadius: 8, opacity: 0.9 },
-
-  // Form
-  formSection: { paddingHorizontal: 20 },
-  field: { marginBottom: 16 },
-  rowFields: { flexDirection: 'row', gap: 12 },
-  label: {
-    color: '#666', fontSize: 11, fontWeight: '700',
-    letterSpacing: 0.8, marginBottom: 8,
+  formSection: {
+    paddingHorizontal: 24,
   },
-  input: {
-    backgroundColor: '#ffffff', borderRadius: 12,
-    paddingHorizontal: 16, paddingVertical: 14,
-    color: '#1a1a1a', fontSize: 14,
-    borderWidth: 1, borderColor: '#e8e8e8',
+  inputField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F5FA',
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  textInput: {
+    flex: 1,
+    height: 52,
+    color: '#1B1C1E',
+    fontSize: 14,
+    fontFamily: 'DMSans-Regular',
+  },
+  rowFields: {
+    flexDirection: 'row',
+    gap: 12,
   },
   toggleRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingVertical: 8,
-    borderTopWidth: 1, borderTopColor: '#e8e8e8', marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
   },
-  toggleLabel: { color: '#1a1a1a', fontSize: 14, fontWeight: '500' },
+  switchTrack: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    padding: 2,
+    flexDirection: 'row',
+    marginRight: 12,
+  },
+  switchTrackActive: {
+    backgroundColor: '#6CC51D',
+    justifyContent: 'flex-end',
+  },
+  switchTrackInactive: {
+    backgroundColor: '#CCD3DF',
+    justifyContent: 'flex-start',
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  toggleLabel: {
+    color: '#1B1C1E',
+    fontSize: 14,
+    fontFamily: 'DMSans-Bold',
+  },
   saveBtn: {
-    position: 'absolute', bottom: 24, left: 20, right: 20,
-    backgroundColor: '#2ecc71', paddingVertical: 16,
-    borderRadius: 30, alignItems: 'center',
-    shadowColor: '#2ecc71', shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 8,
+    backgroundColor: '#23AA49',
+    paddingVertical: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 24,
+    marginBottom: Platform.OS === 'ios' ? 34 : 24,
+    shadowColor: '#23AA49',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+  saveText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+  },
+  inputFieldError: {
+    borderColor: '#ff4d4f',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff4d4f',
+    fontSize: 12,
+    marginTop: -8,
+    marginBottom: 12,
+    marginLeft: 4,
+    fontFamily: 'DMSans-Regular',
+  },
+  fieldIconContainer: {
+    marginRight: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userHead: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+  },
+  userBody: {
+    width: 15,
+    height: 7,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    marginTop: 2,
+    borderBottomWidth: 0,
+  },
+  cardOutline: {
+    width: 18,
+    height: 12,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    justifyContent: 'flex-start',
+    paddingTop: 2,
+  },
+  cardLine: {
+    width: '100%',
+    height: 1.5,
+    backgroundColor: '#868889',
+  },
+  calendarOutline: {
+    width: 16,
+    height: 16,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  calendarHeaderLine: {
+    width: '100%',
+    height: 2.5,
+    backgroundColor: '#868889',
+    position: 'absolute',
+    top: 2,
+  },
+  lockBody: {
+    width: 14,
+    height: 11,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    position: 'relative',
+    marginTop: 5,
+  },
+  lockShackle: {
+    width: 10,
+    height: 7,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    borderBottomWidth: 0,
+    position: 'absolute',
+    top: -7,
+    left: 0.5,
+  },
 });
 
 export default AddCardScreen;
+

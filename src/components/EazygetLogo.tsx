@@ -6,10 +6,10 @@ interface EazygetLogoProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const EazygetLogo: React.FC<EazygetLogoProps> = ({ size = 'large', style }) => {
+const EazygetLogo: React.FC<EazygetLogoProps> = ({ size = 'small', style, }) => {
   return (
     <View style={[styles.wrapper, style]}>
-      <Image source={require('../assets/app-icon.jpg')} style={styles.iconImg} />
+      <Image source={require('../assets/app-icon.jpg')} style={[size === "large" ? styles.iconImg : styles.iconImgSmall]} />
     </View>
   );
 };
@@ -18,11 +18,14 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     justifyContent: "center",
-    display: "flex",
-    marginTop: 79
   },
   iconImg: {
-    height: 32,
+    width: 225,
+    resizeMode: "contain"
+  },
+  iconImgSmall: {
+    width: 113,
+    height: 31,
     resizeMode: "contain"
   }
 });

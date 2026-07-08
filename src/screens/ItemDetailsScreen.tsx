@@ -36,7 +36,8 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.searchBtn}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Image source={require('../assets/icons/search-black.png')} style={styles.searchIcon} />
+          {/* <Text style={styles.searchIcon}>🔍</Text> */}
         </TouchableOpacity>
       </View>
 
@@ -44,7 +45,8 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({
         {/* Product Image */}
         <View style={styles.imageContainer}>
           <TouchableOpacity style={styles.heartBtn}>
-            <Text style={styles.heart}>♡</Text>
+            <Image source={require('../assets/icons/heart-img.png')} style={styles.heart} />
+            {/* <Text style={styles.heart}>♡</Text> */}
           </TouchableOpacity>
           <Image source={require('../assets/Beef-Boneless.png')} style={styles.productImage} />
           {/* <MeatImage type={product.type} size={200} /> */}
@@ -129,9 +131,12 @@ const styles = StyleSheet.create({
   backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
   searchBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center',
   },
-  searchIcon: { fontSize: 16 },
+  searchIcon: {
+    height: 13,
+    resizeMode: "contain"
+  },
   scrollContent: { paddingBottom: 100 },
   imageContainer: {
     height: 260, backgroundColor: '#f0f1f5',
@@ -139,26 +144,52 @@ const styles = StyleSheet.create({
     marginHorizontal: 16, borderRadius: 20,
     marginBottom: 24, position: 'relative',
   },
-  heartBtn: { position: 'absolute', top: 14, right: 14, zIndex: 2 },
-  heart: { fontSize: 22, color: '#e74c3c' },
+  heartBtn: {
+    position: 'absolute',
+    top: 30,
+    right: 10,
+    zIndex: 2,
+    backgroundColor: "#FFFFFF",
+    width: 33,
+    height: 33,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  heart: {
+    height: 15,
+    width: 13,
+    resizeMode: "contain",
+    tintColor: "#EEEEEE"
+  },
   infoSection: { paddingHorizontal: 20 },
   titleRow: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: 6,
   },
-  productName: { color: '#1a1a1a', fontSize: 22, fontWeight: '800', flex: 1 },
+  productName: {
+    color: '#1a1a1a',
+    fontSize: 24,
+    flex: 1,
+    fontFamily: 'DMSans-Bold',
+  },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   qtyBtn: {
     width: 30, height: 30, borderRadius: 15,
     backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
   },
-  qtyBtnGreen: { backgroundColor: '#2ecc71' },
+  qtyBtnGreen: { backgroundColor: '#23AA49' },
   qtyBtnText: { color: '#1a1a1a', fontSize: 18, fontWeight: '700', lineHeight: 22 },
   qtyValue: { color: '#1a1a1a', fontSize: 16, fontWeight: '700', minWidth: 20, textAlign: 'center' },
-  productPrice: { color: '#FF324B', fontSize: 15, fontWeight: '700', marginBottom: 14 },
+  productPrice: {
+    color: '#FF324B',
+    fontSize: 20,
+    marginBottom: 14,
+    fontFamily: 'DMSans-Bold',
+  },
   description: {
     color: '#979899', fontSize: 16, lineHeight: 21, marginBottom: 24,
-    fontWeight: "500"
+    fontFamily: 'DMSans-Medium',
   },
   badgesGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
@@ -170,16 +201,27 @@ const styles = StyleSheet.create({
     width: (width - 56) / 2,
   },
   badgeIcon: { width: 35, height: 35, resizeMode: 'contain' },
-  badgeTitle: { color: '#1a1a1a', fontSize: 13, fontWeight: '700' },
-  badgeSub: { color: '#888', fontSize: 11 },
+  badgeTitle: {
+    color: '#23AA49', fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+
+  },
+  badgeSub: {
+    color: '#888', fontSize: 14,
+    fontFamily: 'DMSans-Medium',
+  },
   addToCartBtn: {
     position: 'absolute', bottom: 24, left: 20, right: 20,
-    backgroundColor: '#2ecc71', paddingVertical: 16,
+    backgroundColor: '#23AA49', paddingVertical: 16,
     borderRadius: 30, alignItems: 'center',
-    shadowColor: '#2ecc71', shadowOffset: { width: 0, height: 6 },
+    shadowColor: '#23AA49', shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.4, shadowRadius: 12, elevation: 8,
   },
-  addToCartText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+  addToCartText: {
+    color: '#fff', fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+
+  },
 });
 
 export default ItemDetailsScreen;

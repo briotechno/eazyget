@@ -12,6 +12,14 @@ import {
   SafeAreaView,
 } from 'react-native';
 import EazygetLogo from '../components/EazygetLogo';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const registerSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Please enter a valid email address')
+    .required('Email address is required'),
+});
 
 interface RegisterScreenProps {
   onContinue: () => void;
@@ -19,7 +27,13 @@ interface RegisterScreenProps {
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({ onContinue, onBack }) => {
-  const [email, setEmail] = useState('');
+  const formik = useFormik({
+    initialValues: { email: '' },
+    validationSchema: registerSchema,
+    onSubmit: () => {
+      onContinue();
+    },
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,30 +66,40 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onContinue, onBack }) =
             {/* Description */}
             <Text style={styles.description}>
               There are many advantages to creating an account: the payment
-              process is faster, shipment tracking is possible and much more.
+              process is faster, shipment tracking {'\n'}is possible and much more.
             </Text>
 
             {/* Email Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>EMAIL*</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  formik.touched.email && formik.errors.email ? styles.inputError : null
+                ]}
                 placeholder="example@gmail.com"
                 placeholderTextColor="#9ea0a5"
-                value={email}
-                onChangeText={setEmail}
+                value={formik.values.email}
+                onChangeText={formik.handleChange('email')}
+                onBlur={formik.handleBlur('email')}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
+              {formik.touched.email && formik.errors.email && (
+                <Text style={styles.errorText}>{formik.errors.email}</Text>
+              )}
             </View>
 
             {/* Continue Button */}
             <TouchableOpacity
-              style={[styles.continueButton, !email && styles.continueButtonDisabled]}
-              onPress={onContinue}
+              style={[
+                styles.continueButton,
+                !formik.values.email && styles.continueButtonDisabled
+              ]}
+              onPress={() => formik.handleSubmit()}
               activeOpacity={0.85}
-              disabled={!email}
+              disabled={!formik.values.email}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
             </TouchableOpacity>
@@ -155,30 +179,27 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#1a1a1a',
     marginBottom: 16,
-    lineHeight: 36,
     textAlign: 'center',
+    fontFamily: 'DMSans-Bold',
+    color: "#06161C"
   },
   description: {
     fontSize: 16,
-    color: '#979899',
-    lineHeight: 22,
     marginBottom: 32,
     textAlign: 'center',
-    paddingHorizontal: 22,
-    fontWeight: 500
+    fontFamily: 'DMSans-Medium',
+    color: "#979899",
+    marginHorizontal: 10
   },
   fieldContainer: {
     marginBottom: 24,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#32343E',
+    fontSize: 13,
     marginBottom: 8,
-    letterSpacing: 0.5,
+    fontFamily: "DMSans-Regular",
+    color: "#32343E"
   },
   input: {
     backgroundColor: '#f0f2f7',
@@ -186,9 +207,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     fontSize: 14,
+    fontFamily: "DMSans-Regular",
     color: '#1a1a1a',
-    height: 62,
-    fontWeight: "400"
+    height: 62
   },
   continueButton: {
     backgroundColor: '#23AA49',
@@ -210,8 +231,17 @@ const styles = StyleSheet.create({
   continueButtonText: {
     color: '#ffffff',
     fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontFamily: 'DMSans-Bold',
+  },
+  inputError: {
+    borderColor: '#ff4d4f',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff4d4f',
+    fontSize: 12,
+    marginTop: 4,
+    fontFamily: 'DMSans-Regular',
   },
 });
 

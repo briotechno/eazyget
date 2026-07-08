@@ -12,6 +12,17 @@ import {
   SafeAreaView,
 } from 'react-native';
 import EazygetLogo from '../components/EazygetLogo';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const loginSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Please enter a valid email address')
+    .required('Email address is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
 
 interface LoginScreenProps {
   onContinue: () => void;
@@ -19,9 +30,15 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onContinue, onBack }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+
+  const formik = useFormik({
+    initialValues: { email: '', password: '' },
+    validationSchema: loginSchema,
+    onSubmit: () => {
+      onContinue();
+    },
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,35 +67,49 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onContinue, onBack }) => {
 
             {/* Description */}
             <Text style={styles.description}>
-              If you have an account, sign in with your username or email address.
+              If you have an account, sign {'\n'}in with your username or{'\n'} email address.
             </Text>
 
             {/* Email Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>EMAIL*</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  formik.touched.email && formik.errors.email ? styles.inputError : null
+                ]}
                 placeholder="eazyme@gmail.com"
                 placeholderTextColor="#9ea0a5"
-                value={email}
-                onChangeText={setEmail}
+                value={formik.values.email}
+                onChangeText={formik.handleChange('email')}
+                onBlur={formik.handleBlur('email')}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
               />
+              {formik.touched.email && formik.errors.email && (
+                <Text style={styles.errorText}>{formik.errors.email}</Text>
+              )}
             </View>
 
             {/* Password Field */}
             <View style={styles.fieldContainer}>
               <Text style={styles.label}>PASSWORD*</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  formik.touched.password && formik.errors.password ? styles.inputError : null
+                ]}
                 placeholder="••••••••••"
                 placeholderTextColor="#9ea0a5"
-                value={password}
-                onChangeText={setPassword}
+                value={formik.values.password}
+                onChangeText={formik.handleChange('password')}
+                onBlur={formik.handleBlur('password')}
                 secureTextEntry
               />
+              {formik.touched.password && formik.errors.password && (
+                <Text style={styles.errorText}>{formik.errors.password}</Text>
+              )}
             </View>
 
             {/* Remember Me & Forgot Password */}
@@ -101,10 +132,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onContinue, onBack }) => {
 
             {/* Continue Button */}
             <TouchableOpacity
-              style={[styles.continueButton, (!email || !password) && styles.continueButtonDisabled]}
-              onPress={onContinue}
+              style={[
+                styles.continueButton,
+                (!formik.values.email || !formik.values.password) && styles.continueButtonDisabled
+              ]}
+              onPress={() => formik.handleSubmit()}
               activeOpacity={0.85}
-              disabled={!email || !password}
+              disabled={!formik.values.email || !formik.values.password}
             >
               <Text style={styles.continueButtonText}>Continue</Text>
             </TouchableOpacity>
@@ -174,22 +208,18 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 20,
-    color: '#000000',
-    lineHeight: 22,
     marginBottom: 32,
     textAlign: 'center',
-    paddingHorizontal: 22,
-    fontWeight: '500',
+    fontFamily: 'DMSans-Medium',
   },
   fieldContainer: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#32343E',
+    fontSize: 13,
+    color: "#32343E",
     marginBottom: 8,
-    letterSpacing: 0.5,
+    fontFamily: "DMSans-Regular",
   },
   input: {
     backgroundColor: '#f0f2f7',
@@ -199,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1a1a1a',
     height: 62,
-    fontWeight: '400',
+    fontFamily: "DMSans-Regular",
   },
   optionsRow: {
     flexDirection: 'row',
@@ -232,13 +262,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   rememberMeText: {
-    fontSize: 14,
-    color: '#979899',
+    fontSize: 13,
+    color: '#7E8A97',
+    fontFamily: "DMSans-Regular",
   },
   forgotText: {
     fontSize: 14,
-    color: '#979899',
-    fontWeight: '500',
+    color: '#8E98A4',
+    fontFamily: "DMSans-Regular",
   },
   continueButton: {
     backgroundColor: '#23AA49',
@@ -259,8 +290,17 @@ const styles = StyleSheet.create({
   continueButtonText: {
     color: '#ffffff',
     fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontFamily: 'DMSans-Bold',
+  },
+  inputError: {
+    borderColor: '#ff4d4f',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff4d4f',
+    fontSize: 12,
+    marginTop: 4,
+    fontFamily: 'DMSans-Regular',
   },
 });
 

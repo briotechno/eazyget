@@ -1,20 +1,55 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  TextInput, KeyboardAvoidingView, Platform, Switch,
+  TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+const addressSchema = Yup.object().shape({
+  address: Yup.string()
+    .min(10, 'Address must be at least 10 characters')
+    .required('Address is required'),
+  zipCode: Yup.string()
+    .matches(/^\d{5}$/, 'Zip code must be exactly 5 digits')
+    .required('Zip code is required'),
+  city: Yup.string()
+    .min(2, 'City must be at least 2 characters')
+    .required('City is required'),
+});
 
 interface AddAddressScreenProps {
   onBack: () => void;
   onSave: () => void;
 }
 
+const CustomSwitch: React.FC<{ value: boolean; onValueChange: (val: boolean) => void }> = ({ value, onValueChange }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => onValueChange(!value)}
+      style={[
+        styles.switchTrack,
+        value ? styles.switchTrackActive : styles.switchTrackInactive
+      ]}
+    >
+      <View style={styles.switchThumb} />
+    </TouchableOpacity>
+  );
+};
+
 const AddAddressScreen: React.FC<AddAddressScreenProps> = ({ onBack, onSave }) => {
-  const [address, setAddress] = useState('2467 S Alameda Street, Suite 100, San Francisco, CA 34007');
-  const [zipCode, setZipCode] = useState('');
-  const [city, setCity]       = useState('');
-  const [email, setEmail]     = useState('eazyme@gmail.com');
-  const [phone, setPhone]     = useState('+1 (562) 444-9999');
+  const formik = useFormik({
+    initialValues: {
+      address: '4567 Oak Avenue, Suite 200, San Francisco, CA 94107',
+      zipCode: '94107',
+      city: 'Oak',
+    },
+    validationSchema: addressSchema,
+    onSubmit: () => {
+      onSave();
+    },
+  });
   const [saveAddr, setSaveAddr] = useState(true);
 
   return (
@@ -24,11 +59,10 @@ const AddAddressScreen: React.FC<AddAddressScreenProps> = ({ onBack, onSave }) =
     >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <TouchableOpacity style={styles.backBtn} onPress={onBack} activeOpacity={0.7}>
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add address</Text>
-        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
@@ -41,85 +75,73 @@ const AddAddressScreen: React.FC<AddAddressScreenProps> = ({ onBack, onSave }) =
           <View style={styles.field}>
             <Text style={styles.label}>ADDRESS</Text>
             <TextInput
-              style={[styles.input, styles.inputMulti]}
-              value={address}
-              onChangeText={setAddress}
+              style={[
+                styles.input,
+                styles.inputMulti,
+                formik.touched.address && formik.errors.address ? styles.inputError : null
+              ]}
+              value={formik.values.address}
+              onChangeText={formik.handleChange('address')}
+              onBlur={formik.handleBlur('address')}
               multiline
               numberOfLines={3}
-              placeholderTextColor="#555"
-              selectionColor="#2ecc71"
+              placeholderTextColor="#A1A1A1"
+              selectionColor="#23AA49"
             />
+            {formik.touched.address && formik.errors.address && (
+              <Text style={styles.errorText}>{formik.errors.address}</Text>
+            )}
           </View>
 
-          {/* Zip & City row */}
-          <View style={styles.rowFields}>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>ZIP CODE</Text>
-              <TextInput
-                style={styles.input}
-                value={zipCode}
-                onChangeText={setZipCode}
-                placeholder="94107"
-                placeholderTextColor="#555"
-                keyboardType="number-pad"
-                selectionColor="#2ecc71"
-              />
-            </View>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>CITY</Text>
-              <TextInput
-                style={styles.input}
-                value={city}
-                onChangeText={setCity}
-                placeholder="San Francisco"
-                placeholderTextColor="#555"
-                selectionColor="#2ecc71"
-              />
-            </View>
-          </View>
-
-          {/* Email */}
+          {/* Zip Code */}
           <View style={styles.field}>
-            <Text style={styles.label}>EMAIL ID</Text>
+            <Text style={styles.label}>ZIP CODE</Text>
             <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#555"
-              selectionColor="#2ecc71"
+              style={[
+                styles.input,
+                formik.touched.zipCode && formik.errors.zipCode ? styles.inputError : null
+              ]}
+              value={formik.values.zipCode}
+              onChangeText={formik.handleChange('zipCode')}
+              onBlur={formik.handleBlur('zipCode')}
+              keyboardType="number-pad"
+              placeholderTextColor="#A1A1A1"
+              selectionColor="#23AA49"
             />
+            {formik.touched.zipCode && formik.errors.zipCode && (
+              <Text style={styles.errorText}>{formik.errors.zipCode}</Text>
+            )}
           </View>
 
-          {/* Phone */}
+          {/* City */}
           <View style={styles.field}>
-            <Text style={styles.label}>PHONE NUMBER</Text>
+            <Text style={styles.label}>CITY</Text>
             <TextInput
-              style={styles.input}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              placeholderTextColor="#555"
-              selectionColor="#2ecc71"
+              style={[
+                styles.input,
+                formik.touched.city && formik.errors.city ? styles.inputError : null
+              ]}
+              value={formik.values.city}
+              onChangeText={formik.handleChange('city')}
+              onBlur={formik.handleBlur('city')}
+              placeholderTextColor="#A1A1A1"
+              selectionColor="#23AA49"
             />
+            {formik.touched.city && formik.errors.city && (
+              <Text style={styles.errorText}>{formik.errors.city}</Text>
+            )}
           </View>
 
           {/* Save toggle */}
           <View style={styles.toggleRow}>
+            <CustomSwitch value={saveAddr} onValueChange={setSaveAddr} />
             <Text style={styles.toggleLabel}>Save this address</Text>
-            <Switch
-              value={saveAddr}
-              onValueChange={setSaveAddr}
-              trackColor={{ false: '#333', true: '#2ecc71' }}
-              thumbColor={saveAddr ? '#fff' : '#888'}
-            />
           </View>
         </View>
       </ScrollView>
 
       {/* Save Button */}
-      <TouchableOpacity style={styles.saveBtn} onPress={onSave} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.saveBtn} onPress={() => formik.handleSubmit()} activeOpacity={0.85}>
         <Text style={styles.saveText}>Save address</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -127,49 +149,136 @@ const AddAddressScreen: React.FC<AddAddressScreenProps> = ({ onBack, onSave }) =
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingHorizontal: 16,
-    paddingTop: 20, paddingBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 16,
+    position: 'relative',
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    position: 'absolute',
+    left: 24,
+    top: Platform.OS === 'ios' ? 60 : 20,
+    height: 40,
+    justifyContent: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
-  headerTitle: { color: '#1a1a1a', fontSize: 17, fontWeight: '700' },
-  scrollContent: { paddingBottom: 100 },
-  formSection: { paddingHorizontal: 20, paddingTop: 8 },
-  field: { marginBottom: 18 },
-  rowFields: { flexDirection: 'row', gap: 12 },
+  backArrow: {
+    color: '#000000',
+    fontSize: 28,
+    fontWeight: '300',
+    lineHeight: 30,
+  },
+  headerTitle: {
+    color: '#000000',
+    fontSize: 18,
+    fontFamily: 'DMSans-Bold',
+  },
+  scrollContent: {
+    paddingTop: 10,
+    paddingBottom: 40,
+  },
+  formSection: {
+    paddingHorizontal: 24,
+  },
+  field: {
+    marginBottom: 20,
+  },
   label: {
-    color: '#666', fontSize: 11, fontWeight: '700',
-    letterSpacing: 0.8, marginBottom: 8,
+    color: '#32343E',
+    fontSize: 13,
+    fontFamily: "DMSans-Regular",
+    letterSpacing: 0.5,
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: '#ffffff', borderRadius: 12,
-    paddingHorizontal: 16, paddingVertical: 14,
-    color: '#1a1a1a', fontSize: 14,
-    borderWidth: 1, borderColor: '#e8e8e8',
+    backgroundColor: '#F0F5FA',
+    borderRadius: 15,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    color: '#1B1C1E',
+    fontSize: 15,
+    fontFamily: 'DMSans-Regular',
   },
   inputMulti: {
-    minHeight: 80, textAlignVertical: 'top',
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   toggleRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingVertical: 6,
-    borderTopWidth: 1, borderTopColor: '#e8e8e8', marginTop: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
   },
-  toggleLabel: { color: '#1a1a1a', fontSize: 14, fontWeight: '500' },
+  switchTrack: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    padding: 2,
+    flexDirection: 'row',
+    marginRight: 12,
+  },
+  switchTrackActive: {
+    backgroundColor: '#6CC51D', // Or brand green
+    justifyContent: 'flex-end',
+  },
+  switchTrackInactive: {
+    backgroundColor: '#CCD3DF',
+    justifyContent: 'flex-start',
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    // Shadow for thumb
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  toggleLabel: {
+    color: '#1B1C1E',
+    fontSize: 14,
+    fontFamily: 'DMSans-Bold',
+  },
   saveBtn: {
-    position: 'absolute', bottom: 24, left: 20, right: 20,
-    backgroundColor: '#2ecc71', paddingVertical: 16,
-    borderRadius: 30, alignItems: 'center',
-    shadowColor: '#2ecc71', shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 8,
+    backgroundColor: '#23AA49',
+    paddingVertical: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 24,
+    marginBottom: Platform.OS === 'ios' ? 34 : 24,
+    shadowColor: '#23AA49',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
   },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+  saveText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+  },
+  inputError: {
+    borderColor: '#ff4d4f',
+    borderWidth: 1,
+  },
+  errorText: {
+    color: '#ff4d4f',
+    fontSize: 12,
+    marginTop: 4,
+    fontFamily: 'DMSans-Regular',
+  },
 });
 
 export default AddAddressScreen;
+
+

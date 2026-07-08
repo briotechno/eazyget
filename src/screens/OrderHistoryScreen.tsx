@@ -1,15 +1,16 @@
 import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  Image,
 } from 'react-native';
 import MeatImage from '../components/MeatImage';
 
 const ORDERS = [
-  { id: '1', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '2kg, 90$', type: 'beef_boneless' as const },
-  { id: '2', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'beef_cubes' as const },
-  { id: '3', name: 'Beef Boneless', desc: 'Boneless cuts, carefully, tastefully trimmed.', weight: '3kg, 90$', type: 'beef_boneless' as const },
-  { id: '4', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'lamb' as const },
-  { id: '5', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'beef_cubes' as const },
+  { id: '1', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '2kg, 90$', type: 'beef_boneless' as const, image: require('../assets/Beef-Boneless.png') },
+  { id: '2', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'beef_cubes' as const, image: require('../assets/Beef-Boneless.png') },
+  { id: '3', name: 'Beef Boneless', desc: 'Boneless cuts, carefully, tastefully trimmed.', weight: '3kg, 90$', type: 'beef_boneless' as const, image: require('../assets/Beef-Boneless.png') },
+  { id: '4', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'lamb' as const, image: require('../assets/Beef-Boneless.png') },
+  { id: '5', name: 'Beef Boneless', desc: 'Premium quality fresh beef boneless cuts, carefully trimmed.', weight: '1kg, 45$', type: 'beef_cubes' as const, image: require('../assets/Beef-Boneless.png') },
 ];
 
 interface OrderHistoryScreenProps {
@@ -30,9 +31,9 @@ const OrderHistoryScreen: React.FC<OrderHistoryScreenProps> = ({ onBack }) => {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {ORDERS.map(order => (
           <View key={order.id} style={styles.orderCard}>
-            <View style={styles.orderImageBox}>
-              <MeatImage type={order.type} size={60} />
-            </View>
+            {/* <View style={styles.orderImageBox}> */}
+            <Image source={order.image} style={styles.orderImage} />
+            {/* </View> */}
             <View style={styles.orderInfo}>
               <Text style={styles.orderName}>{order.name}</Text>
               <Text style={styles.orderDesc} numberOfLines={2}>{order.desc}</Text>
@@ -57,23 +58,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
   },
   backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
-  headerTitle: { color: '#1a1a1a', fontSize: 17, fontWeight: '700' },
-  scrollContent: { paddingHorizontal: 16, paddingBottom: 30 },
+  headerTitle: { color: '#1a1a1a', fontSize: 20, fontFamily: 'DMSans-Bold', },
+  scrollContent: { paddingBottom: 30 },
   orderCard: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#ffffff', borderRadius: 16,
+    // backgroundColor: '#ffffff', 
+    borderRadius: 16,
     padding: 12, marginBottom: 12, gap: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    shadowOpacity: 0.05, shadowRadius: 4,
+    //  elevation: 1,
   },
   orderImageBox: {
     width: 68, height: 68, backgroundColor: '#f0f1f5',
     borderRadius: 12, justifyContent: 'center', alignItems: 'center',
   },
   orderInfo: { flex: 1 },
-  orderName: { color: '#1a1a1a', fontSize: 13, fontWeight: '700', marginBottom: 3 },
-  orderDesc: { color: '#777', fontSize: 11, lineHeight: 16 },
-  orderWeight: { color: '#2ecc71', fontSize: 12, fontWeight: '700', minWidth: 55, textAlign: 'right' },
+  orderName: { color: '#1a1a1a', fontSize: 14, fontFamily: 'DMSans-Bold', },
+  orderDesc: { color: '#777', fontSize: 14, lineHeight: 16, fontFamily: 'DMSans-Regular', },
+  orderWeight: { color: '#FF324B', fontSize: 16, fontFamily: 'DMSans-Bold', },
+  orderImage: {
+    width: 68,
+    height: 68,
+    resizeMode: "contain"
+  }
 });
 
 export default OrderHistoryScreen;

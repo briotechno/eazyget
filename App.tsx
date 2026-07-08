@@ -10,32 +10,29 @@ import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // ── Auth Screens ──
-import SplashScreen      from './src/screens/SplashScreen';
-import IntroScreen       from './src/screens/IntroScreen';
-import RegisterScreen    from './src/screens/RegisterScreen';
-import LoginScreen       from './src/screens/LoginScreen';
+import SplashScreen from './src/screens/SplashScreen';
+import IntroScreen from './src/screens/IntroScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import LoginScreen from './src/screens/LoginScreen';
 
 // ── Main App Screens ──
-import HomeScreen        from './src/screens/HomeScreen';
+import HomeScreen from './src/screens/HomeScreen';
 import ItemDetailsScreen from './src/screens/ItemDetailsScreen';
-import AllProductScreen  from './src/screens/AllProductScreen';
-import CartScreen        from './src/screens/CartScreen';
-import FilterScreen      from './src/screens/FilterScreen';
+import AllProductScreen from './src/screens/AllProductScreen';
+import CartScreen from './src/screens/CartScreen';
+import FilterScreen from './src/screens/FilterScreen';
 
 // ── Profile & Account Screens ──
-import FavoritesScreen   from './src/screens/FavoritesScreen';
+import FavoritesScreen from './src/screens/FavoritesScreen';
 import OrderHistoryScreen from './src/screens/OrderHistoryScreen';
-import ProfileScreen     from './src/screens/ProfileScreen';
-import AboutMeScreen     from './src/screens/AboutMeScreen';
-import AddAddressScreen  from './src/screens/AddAddressScreen';
-import CreditCardScreen  from './src/screens/CreditCardScreen';
-import AddCardScreen     from './src/screens/AddCardScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import AboutMeScreen from './src/screens/AboutMeScreen';
+import AddAddressScreen from './src/screens/AddAddressScreen';
+import CreditCardScreen from './src/screens/CreditCardScreen';
+import AddCardScreen from './src/screens/AddCardScreen';
 
-type Screen =
-  | 'Splash' | 'Intro' | 'Register' | 'Login'
-  | 'Home' | 'ItemDetails' | 'AllProduct' | 'Cart' | 'Filter'
-  | 'Favorites' | 'OrderHistory' | 'Profile' | 'AboutMe'
-  | 'AddAddress' | 'CreditCard' | 'AddCard';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 interface Product {
   id: string;
@@ -44,17 +41,29 @@ interface Product {
   type: 'beef_cubes' | 'lamb' | 'chicken' | 'goat' | 'beef_boneless';
 }
 
+export type RootStackParamList = {
+  Splash: undefined;
+  Intro: undefined;
+  Register: undefined;
+  Login: undefined;
+  Home: undefined;
+  ItemDetails: { product?: Product };
+  AllProduct: undefined;
+  Cart: undefined;
+  Filter: undefined;
+  Favorites: undefined;
+  OrderHistory: undefined;
+  Profile: undefined;
+  AboutMe: undefined;
+  AddAddress: undefined;
+  CreditCard: undefined;
+  AddCard: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
 function App(): React.JSX.Element {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('Splash');
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>();
   const [cartItems, setCartItems] = useState<any[]>([]);
-
-  const navigate = (screen: Screen) => setCurrentScreen(screen);
-
-  const handleProductPress = (product: Product) => {
-    setSelectedProduct(product);
-    navigate('ItemDetails');
-  };
 
   const handleAddToCart = (product: Product, qty: number) => {
     setCartItems(prev => {
@@ -64,122 +73,157 @@ function App(): React.JSX.Element {
       }
       return [...prev, { ...product, quantity: qty }];
     });
-    navigate('Cart');
   };
 
   return (
     <SafeAreaProvider>
-      <View style={styles.container}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Splash"
+          screenOptions={{ headerShown: false }}
+        >
+          {/* ── Auth flow ── */}
+          <Stack.Screen name="Splash">
+            {({ navigation }) => (
+              <SplashScreen onFinish={() => navigation.navigate('Intro')} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Intro">
+            {({ navigation }) => (
+              <IntroScreen onShopNow={() => navigation.navigate('Register')} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Register">
+            {({ navigation }) => (
+              <RegisterScreen
+                onContinue={() => navigation.navigate('Login')}
+                onBack={() => navigation.navigate('Intro')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Login">
+            {({ navigation }) => (
+              <LoginScreen
+                onContinue={() => navigation.navigate('Home')}
+                onBack={() => navigation.navigate('Register')}
+              />
+            )}
+          </Stack.Screen>
 
-        {/* ── Auth flow ── */}
-        {currentScreen === 'Splash' && (
-          <SplashScreen onFinish={() => navigate('Intro')} />
-        )}
-        {currentScreen === 'Intro' && (
-          <IntroScreen onShopNow={() => navigate('Register')} />
-        )}
-        {currentScreen === 'Register' && (
-          <RegisterScreen
-            onContinue={() => navigate('Login')}
-            onBack={() => navigate('Intro')}
-          />
-        )}
-        {currentScreen === 'Login' && (
-          <LoginScreen
-            onContinue={() => navigate('Home')}
-            onBack={() => navigate('Register')}
-          />
-        )}
+          {/* ── Main app flow ── */}
+          <Stack.Screen name="Home">
+            {({ navigation }) => (
+              <HomeScreen
+                onProductPress={(product) => navigation.navigate('ItemDetails', { product })}
+                onAllProduct={() => navigation.navigate('AllProduct')}
+                onCart={() => navigation.navigate('Cart')}
+                onProfile={() => navigation.navigate('Profile')}
+                onFavorites={() => navigation.navigate('Favorites')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="ItemDetails">
+            {({ route, navigation }) => (
+              <ItemDetailsScreen
+                product={route.params?.product}
+                onBack={() => navigation.goBack()}
+                onAddToCart={(product, qty) => {
+                  handleAddToCart(product, qty);
+                  navigation.navigate('Cart');
+                }}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AllProduct">
+            {({ navigation }) => (
+              <AllProductScreen
+                onBack={() => navigation.goBack()}
+                onProductPress={(product) => navigation.navigate('ItemDetails', { product })}
+                onFilter={() => navigation.navigate('Filter')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Cart">
+            {({ navigation }) => (
+              <CartScreen
+                onBack={() => navigation.goBack()}
+                onCheckout={() => navigation.navigate('Home')}
+                cartItems={cartItems.length > 0 ? cartItems : undefined}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Filter">
+            {({ navigation }) => (
+              <FilterScreen
+                onBack={() => navigation.goBack()}
+                onApply={() => navigation.navigate('AllProduct')}
+                onClear={() => navigation.navigate('AllProduct')}
+              />
+            )}
+          </Stack.Screen>
 
-        {/* ── Main app flow ── */}
-        {currentScreen === 'Home' && (
-          <HomeScreen
-            onProductPress={handleProductPress}
-            onAllProduct={() => navigate('AllProduct')}
-            onCart={() => navigate('Cart')}
-            onProfile={() => navigate('Profile')}
-            onFavorites={() => navigate('Favorites')}
-          />
-        )}
-        {currentScreen === 'ItemDetails' && (
-          <ItemDetailsScreen
-            product={selectedProduct}
-            onBack={() => navigate('Home')}
-            onAddToCart={handleAddToCart}
-          />
-        )}
-        {currentScreen === 'AllProduct' && (
-          <AllProductScreen
-            onBack={() => navigate('Home')}
-            onProductPress={handleProductPress}
-            onFilter={() => navigate('Filter')}
-          />
-        )}
-        {currentScreen === 'Cart' && (
-          <CartScreen
-            onBack={() => navigate('Home')}
-            onCheckout={() => navigate('Home')}
-            cartItems={cartItems.length > 0 ? cartItems : undefined}
-          />
-        )}
-        {currentScreen === 'Filter' && (
-          <FilterScreen
-            onBack={() => navigate('AllProduct')}
-            onApply={() => navigate('AllProduct')}
-            onClear={() => navigate('AllProduct')}
-          />
-        )}
-
-        {/* ── Profile & Account flow ── */}
-        {currentScreen === 'Favorites' && (
-          <FavoritesScreen
-            onBack={() => navigate('Home')}
-            onProductPress={handleProductPress}
-          />
-        )}
-        {currentScreen === 'OrderHistory' && (
-          <OrderHistoryScreen
-            onBack={() => navigate('Profile')}
-          />
-        )}
-        {currentScreen === 'Profile' && (
-          <ProfileScreen
-            onBack={() => navigate('Home')}
-            onOrders={() => navigate('OrderHistory')}
-            onAboutMe={() => navigate('AboutMe')}
-            onFavorites={() => navigate('Favorites')}
-            onAddress={() => navigate('AddAddress')}
-            onCreditCards={() => navigate('CreditCard')}
-            onLogOut={() => navigate('Login')}
-          />
-        )}
-        {currentScreen === 'AboutMe' && (
-          <AboutMeScreen
-            onBack={() => navigate('Profile')}
-            onUpdate={() => navigate('Profile')}
-          />
-        )}
-        {currentScreen === 'AddAddress' && (
-          <AddAddressScreen
-            onBack={() => navigate('Profile')}
-            onSave={() => navigate('Profile')}
-          />
-        )}
-        {currentScreen === 'CreditCard' && (
-          <CreditCardScreen
-            onBack={() => navigate('Profile')}
-            onAddCard={() => navigate('AddCard')}
-            onSave={() => navigate('Profile')}
-          />
-        )}
-        {currentScreen === 'AddCard' && (
-          <AddCardScreen
-            onBack={() => navigate('CreditCard')}
-            onSave={() => navigate('CreditCard')}
-          />
-        )}
-
-      </View>
+          {/* ── Profile & Account flow ── */}
+          <Stack.Screen name="Favorites">
+            {({ navigation }) => (
+              <FavoritesScreen
+                onBack={() => navigation.goBack()}
+                onProductPress={(product) => navigation.navigate('ItemDetails', { product })}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="OrderHistory">
+            {({ navigation }) => (
+              <OrderHistoryScreen onBack={() => navigation.goBack()} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="Profile">
+            {({ navigation }) => (
+              <ProfileScreen
+                onBack={() => navigation.goBack()}
+                onOrders={() => navigation.navigate('OrderHistory')}
+                onAboutMe={() => navigation.navigate('AboutMe')}
+                onFavorites={() => navigation.navigate('Favorites')}
+                onAddress={() => navigation.navigate('AddAddress')}
+                onCreditCards={() => navigation.navigate('CreditCard')}
+                onLogOut={() => navigation.navigate('Login')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AboutMe">
+            {({ navigation }) => (
+              <AboutMeScreen
+                onBack={() => navigation.goBack()}
+                onUpdate={() => navigation.navigate('Profile')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AddAddress">
+            {({ navigation }) => (
+              <AddAddressScreen
+                onBack={() => navigation.goBack()}
+                onSave={() => navigation.navigate('Profile')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="CreditCard">
+            {({ navigation }) => (
+              <CreditCardScreen
+                onBack={() => navigation.goBack()}
+                onAddCard={() => navigation.navigate('AddCard')}
+                onSave={() => navigation.navigate('Profile')}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AddCard">
+            {({ navigation }) => (
+              <AddCardScreen
+                onBack={() => navigation.goBack()}
+                onSave={() => navigation.navigate('CreditCard')}
+              />
+            )}
+          </Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

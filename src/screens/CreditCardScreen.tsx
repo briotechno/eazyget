@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, Switch,
+  TouchableOpacity, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 
 interface CreditCardScreenProps {
@@ -10,168 +10,582 @@ interface CreditCardScreenProps {
   onSave: () => void;
 }
 
-const CARDS = [
-  {
-    id: '1',
-    type: 'master',
-    label: 'Master Card',
-    number: 'XXXX XXXX XXXX 1375',
-    expiry: '01/26',
-    cvv: '190',
-    isDefault: true,
-    color: '#e74c3c',
-    color2: '#c0392b',
-  },
-  {
-    id: '2',
-    type: 'visa',
-    label: 'Visa Card',
-    number: 'XXXX XXXX XXXX 4036',
-    expiry: '12/25',
-    cvv: '456',
-    isDefault: false,
-    color: '#1a6bb5',
-    color2: '#154e87',
-  },
-  {
-    id: '3',
-    type: 'master',
-    label: 'Master Card',
-    number: 'XXXX XXXX XXXX 6026',
-    expiry: '09/27',
-    cvv: '321',
-    isDefault: false,
-    color: '#e74c3c',
-    color2: '#c0392b',
-  },
-];
+interface CardType {
+  id: string;
+  type: 'master' | 'visa';
+  label: string;
+  name: string;
+  number: string;
+  expiry: string;
+  cvv: string;
+  isDefault: boolean;
+}
+
+const CustomSwitch: React.FC<{ value: boolean; onValueChange: (val: boolean) => void }> = ({ value, onValueChange }) => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => onValueChange(!value)}
+      style={[
+        styles.switchTrack,
+        value ? styles.switchTrackActive : styles.switchTrackInactive
+      ]}
+    >
+      <View style={styles.switchThumb} />
+    </TouchableOpacity>
+  );
+};
+
+// --- Custom Field Icons ---
+const UserFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.userHead} />
+    <View style={styles.userBody} />
+  </View>
+);
+
+const CardFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.cardOutline}>
+      <View style={styles.cardLine} />
+    </View>
+  </View>
+);
+
+const CalendarFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.calendarOutline}>
+      <View style={styles.calendarHeaderLine} />
+    </View>
+  </View>
+);
+
+const LockFieldIcon = () => (
+  <View style={styles.fieldIconContainer}>
+    <View style={styles.lockBody}>
+      <View style={styles.lockShackle} />
+    </View>
+  </View>
+);
 
 const CreditCardScreen: React.FC<CreditCardScreenProps> = ({ onBack, onAddCard, onSave }) => {
-  const [defaultCard, setDefaultCard] = useState('1');
+  const [cards, setCards] = useState<CardType[]>([
+    {
+      id: '1',
+      type: 'master',
+      label: 'Master Card',
+      name: 'Jen',
+      number: 'XXXX XXXX XXXX 5678',
+      expiry: '01/28',
+      cvv: '908',
+      isDefault: true,
+    },
+    {
+      id: '2',
+      type: 'visa',
+      label: 'Visa Card',
+      name: 'Jen',
+      number: 'XXXX XXXX XXXX 5678',
+      expiry: '01/28',
+      cvv: '908',
+      isDefault: false,
+    },
+    {
+      id: '3',
+      type: 'master',
+      label: 'Master Card',
+      name: 'Jen',
+      number: 'XXXX XXXX XXXX 5678',
+      expiry: '01/28',
+      cvv: '908',
+      isDefault: false,
+    },
+  ]);
+
+  const [expandedCardId, setExpandedCardId] = useState<string | null>('1');
+
+  const toggleExpand = (id: string) => {
+    setExpandedCardId(expandedCardId === id ? null : id);
+  };
+
+  const handleFieldChange = (id: string, field: keyof CardType, value: any) => {
+    setCards(prev => prev.map(card => card.id === id ? { ...card, [field]: value } : card));
+  };
+
+  const handleDefaultChange = (id: string, val: boolean) => {
+    setCards(prev => prev.map(card => {
+      if (card.id === id) {
+        return { ...card, isDefault: val };
+      }
+      // If we are setting this card to default, unset all others
+      return val ? { ...card, isDefault: false } : card;
+    }));
+  };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <TouchableOpacity style={styles.backBtn} onPress={onBack} activeOpacity={0.7}>
           <Text style={styles.backArrow}>‹</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Card</Text>
-        <TouchableOpacity style={styles.addBtn} onPress={onAddCard}>
-          <Text style={styles.addIcon}>⊕</Text>
+        <TouchableOpacity style={styles.addBtn} onPress={onAddCard} activeOpacity={0.7}>
+          <Text style={styles.addIcon}>+</Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {CARDS.map(card => (
-          <View key={card.id} style={styles.cardItem}>
-            {/* Mini card visual */}
-            <View style={[styles.miniCard, { backgroundColor: card.color }]}>
-              <View style={[styles.miniCardCircle, { backgroundColor: card.color2, right: -8 }]} />
-              <View style={[styles.miniCardCircle, { backgroundColor: card.color, right: 10 }]} />
-              {card.type === 'visa' ? (
-                <Text style={styles.miniCardLogo}>VISA</Text>
-              ) : (
-                <View style={styles.masterLogoMini}>
-                  <View style={[styles.masterCircle, { backgroundColor: '#f39c12' }]} />
-                  <View style={[styles.masterCircle, { backgroundColor: '#e74c3c', marginLeft: -8 }]} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        {cards.map(card => {
+          const isExpanded = expandedCardId === card.id;
+
+          return (
+            <View key={card.id} style={styles.cardItemWrapper}>
+              {/* Default Badge (rendered above the specific card if default) */}
+              {card.isDefault && (
+                <View style={styles.defaultBadge}>
+                  <Text style={styles.defaultBadgeText}>DEFAULT</Text>
                 </View>
               )}
-            </View>
 
-            {/* Card info */}
-            <View style={styles.cardInfo}>
-              <Text style={styles.cardLabel}>{card.label}</Text>
-              <Text style={styles.cardNumber}>{card.number}</Text>
-              <View style={styles.cardMeta}>
-                <Text style={styles.cardMetaText}>Expiry {card.expiry}</Text>
-                <Text style={styles.cardMetaText}>  CVV {card.cvv}</Text>
-              </View>
-            </View>
+              {/* Card Summary Row */}
+              <TouchableOpacity
+                style={styles.cardSummaryRow}
+                onPress={() => toggleExpand(card.id)}
+                activeOpacity={0.7}
+              >
+                {/* Logo Container */}
+                <View style={styles.logoContainer}>
+                  {card.type === 'master' ? (
+                    <View style={styles.mastercardLogo}>
+                      <View style={[styles.masterCircle, { backgroundColor: '#EB001B' }]} />
+                      <View style={[styles.masterCircle, { backgroundColor: '#F79E1B', marginLeft: -12 }]} />
+                    </View>
+                  ) : (
+                    <Text style={styles.visaText}>VISA</Text>
+                  )}
+                </View>
 
-            {/* Default toggle */}
-            <View style={styles.defaultCol}>
-              <Switch
-                value={defaultCard === card.id}
-                onValueChange={() => setDefaultCard(card.id)}
-                trackColor={{ false: '#333', true: '#2ecc71' }}
-                thumbColor={defaultCard === card.id ? '#fff' : '#888'}
-                style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-              />
-              {defaultCard === card.id && (
-                <Text style={styles.defaultLabel}>Make{'\n'}default</Text>
+                {/* Card Text Info */}
+                <View style={styles.cardTextInfo}>
+                  <Text style={styles.cardLabel}>{card.label}</Text>
+                  <Text style={styles.cardNumber}>{card.number}</Text>
+                  <Text style={styles.cardExpiryCvv}>
+                    Expiry : <Text style={styles.cardBoldMeta}>{card.expiry}</Text>    CVV : <Text style={styles.cardBoldMeta}>{card.cvv}</Text>
+                  </Text>
+                </View>
+
+                {/* Caret Toggle */}
+                <View style={[styles.caretCircle, isExpanded && styles.caretCircleActive]}>
+                  <Text style={[styles.caretArrow, isExpanded ? styles.caretArrowActive : styles.caretArrowInactive]}>
+                    {isExpanded ? '▲' : '▼'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Expanded Card Edit Form */}
+              {isExpanded && (
+                <View style={styles.editFormContainer}>
+                  {/* Name on Card Input */}
+                  <View style={styles.inputField}>
+                    <UserFieldIcon />
+                    <TextInput
+                      style={styles.textInput}
+                      value={card.name}
+                      onChangeText={val => handleFieldChange(card.id, 'name', val)}
+                      placeholder="Name on card"
+                      placeholderTextColor="#A1A1A1"
+                      selectionColor="#23AA49"
+                    />
+                  </View>
+
+                  {/* Card Number Input */}
+                  <View style={styles.inputField}>
+                    <CardFieldIcon />
+                    <TextInput
+                      style={styles.textInput}
+                      value={card.number}
+                      onChangeText={val => handleFieldChange(card.id, 'number', val)}
+                      placeholder="Card number"
+                      placeholderTextColor="#A1A1A1"
+                      selectionColor="#23AA49"
+                    />
+                  </View>
+
+                  {/* Expiry & CVV inputs side-by-side */}
+                  <View style={styles.rowFields}>
+                    <View style={[styles.inputField, { flex: 1 }]}>
+                      <CalendarFieldIcon />
+                      <TextInput
+                        style={styles.textInput}
+                        value={card.expiry}
+                        onChangeText={val => handleFieldChange(card.id, 'expiry', val)}
+                        placeholder="Expiry"
+                        placeholderTextColor="#A1A1A1"
+                        selectionColor="#23AA49"
+                      />
+                    </View>
+
+                    <View style={[styles.inputField, { flex: 1 }]}>
+                      <LockFieldIcon />
+                      <TextInput
+                        style={styles.textInput}
+                        value={card.cvv}
+                        onChangeText={val => handleFieldChange(card.id, 'cvv', val)}
+                        placeholder="CVV"
+                        placeholderTextColor="#A1A1A1"
+                        selectionColor="#23AA49"
+                        keyboardType="number-pad"
+                      />
+                    </View>
+                  </View>
+
+                  {/* Make Default Toggle */}
+                  <View style={styles.toggleRow}>
+                    <CustomSwitch
+                      value={card.isDefault}
+                      onValueChange={val => handleDefaultChange(card.id, val)}
+                    />
+                    <Text style={styles.toggleLabel}>Make default</Text>
+                  </View>
+                </View>
               )}
+
+              {/* Under-card Separator Line */}
+              <View style={styles.cardSeparator} />
             </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
 
-      {/* Save */}
+      {/* Save Button */}
       <TouchableOpacity style={styles.saveBtn} onPress={onSave} activeOpacity={0.85}>
         <Text style={styles.saveText}>Save</Text>
       </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingHorizontal: 16,
-    paddingTop: 20, paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 20,
+    paddingBottom: 16,
+    position: 'relative',
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    position: 'absolute',
+    left: 24,
+    top: Platform.OS === 'ios' ? 60 : 20,
+    height: 40,
+    justifyContent: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
-  headerTitle: { color: '#1a1a1a', fontSize: 17, fontWeight: '700' },
+  backArrow: {
+    color: '#000000',
+    fontSize: 28,
+    fontWeight: '300',
+    lineHeight: 30,
+  },
+  headerTitle: {
+    color: '#000000',
+    fontSize: 18,
+    fontFamily: 'DMSans-Bold',
+  },
   addBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    position: 'absolute',
+    right: 24,
+    top: Platform.OS === 'ios' ? 60 : 20,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  addIcon: { color: '#2ecc71', fontSize: 22 },
-  scrollContent: { paddingHorizontal: 16, paddingBottom: 100 },
-  cardItem: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#ffffff', borderRadius: 16,
-    padding: 12, marginBottom: 12, gap: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+  addIcon: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 18,
+    textAlign: 'center',
   },
-  miniCard: {
-    width: 64, height: 42, borderRadius: 8,
-    justifyContent: 'center', alignItems: 'center',
-    overflow: 'hidden', position: 'relative',
+  scrollContent: {
+    paddingTop: 10,
+    paddingBottom: 100,
   },
-  miniCardCircle: {
-    position: 'absolute', width: 30, height: 30,
-    borderRadius: 15, opacity: 0.5, top: 6,
+  cardItemWrapper: {
+    paddingHorizontal: 24,
+    marginTop: 16,
   },
-  miniCardLogo: {
-    color: '#fff', fontSize: 13, fontWeight: '900',
-    fontStyle: 'italic', letterSpacing: 1,
+  defaultBadge: {
+    backgroundColor: '#EBF8EE',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
   },
-  masterLogoMini: { flexDirection: 'row' },
+  defaultBadgeText: {
+    color: '#23AA49',
+    fontSize: 10,
+    fontFamily: 'DMSans-Bold',
+  },
+  cardSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F5F6FA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  mastercardLogo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   masterCircle: {
-    width: 18, height: 18, borderRadius: 9, opacity: 0.9,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
   },
-  cardInfo: { flex: 1 },
-  cardLabel: { color: '#1a1a1a', fontSize: 13, fontWeight: '700', marginBottom: 3 },
-  cardNumber: { color: '#888', fontSize: 11, marginBottom: 3, letterSpacing: 0.5 },
-  cardMeta: { flexDirection: 'row' },
-  cardMetaText: { color: '#666', fontSize: 10 },
-  defaultCol: { alignItems: 'center', minWidth: 52 },
-  defaultLabel: { color: '#2ecc71', fontSize: 9, textAlign: 'center', marginTop: 2 },
+  visaText: {
+    color: '#0F509E',
+    fontFamily: 'DMSans-Bold',
+    fontSize: 16,
+    fontStyle: 'italic',
+    fontWeight: '900',
+  },
+  cardTextInfo: {
+    flex: 1,
+  },
+  cardLabel: {
+    color: '#000000',
+    fontSize: 15,
+    fontFamily: 'DMSans-Bold',
+    marginBottom: 4,
+  },
+  cardNumber: {
+    color: '#868889',
+    fontSize: 12,
+    fontFamily: 'DMSans-Regular',
+    marginBottom: 4,
+  },
+  cardExpiryCvv: {
+    color: '#868889',
+    fontSize: 11,
+    fontFamily: 'DMSans-Regular',
+  },
+  cardBoldMeta: {
+    color: '#000000',
+    fontFamily: 'DMSans-Bold',
+  },
+  caretCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#6CC51D',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  caretCircleActive: {
+    borderColor: '#6CC51D',
+  },
+  caretArrow: {
+    color: '#6CC51D',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  caretArrowActive: {
+    marginTop: -2,
+  },
+  caretArrowInactive: {
+    marginTop: 2,
+  },
+  editFormContainer: {
+    marginTop: 16,
+    paddingLeft: 8,
+  },
+  inputField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F5FA',
+    borderRadius: 15,
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  textInput: {
+    flex: 1,
+    height: 52,
+    color: '#1B1C1E',
+    fontSize: 14,
+    fontFamily: 'DMSans-Regular',
+  },
+  rowFields: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  switchTrack: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    padding: 2,
+    flexDirection: 'row',
+    marginRight: 12,
+  },
+  switchTrackActive: {
+    backgroundColor: '#6CC51D',
+    justifyContent: 'flex-end',
+  },
+  switchTrackInactive: {
+    backgroundColor: '#CCD3DF',
+    justifyContent: 'flex-start',
+  },
+  switchThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  toggleLabel: {
+    color: '#1B1C1E',
+    fontSize: 14,
+    fontFamily: 'DMSans-Bold',
+  },
+  cardSeparator: {
+    height: 1,
+    backgroundColor: '#F0F3F7',
+    marginTop: 20,
+  },
   saveBtn: {
-    position: 'absolute', bottom: 24, left: 20, right: 20,
-    backgroundColor: '#2ecc71', paddingVertical: 16,
-    borderRadius: 30, alignItems: 'center',
-    shadowColor: '#2ecc71', shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4, shadowRadius: 12, elevation: 8,
+    backgroundColor: '#23AA49',
+    paddingVertical: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 24,
+    marginBottom: Platform.OS === 'ios' ? 34 : 24,
+    shadowColor: '#23AA49',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
+  saveText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
+  },
+  fieldIconContainer: {
+    marginRight: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userHead: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+  },
+  userBody: {
+    width: 15,
+    height: 7,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    marginTop: 2,
+    borderBottomWidth: 0,
+  },
+  cardOutline: {
+    width: 18,
+    height: 12,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    justifyContent: 'flex-start',
+    paddingTop: 2,
+  },
+  cardLine: {
+    width: '100%',
+    height: 1.5,
+    backgroundColor: '#868889',
+  },
+  calendarOutline: {
+    width: 16,
+    height: 16,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  calendarHeaderLine: {
+    width: '100%',
+    height: 2.5,
+    backgroundColor: '#868889',
+    position: 'absolute',
+    top: 2,
+  },
+  lockBody: {
+    width: 14,
+    height: 11,
+    borderRadius: 2,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    position: 'relative',
+    marginTop: 5,
+  },
+  lockShackle: {
+    width: 10,
+    height: 7,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#868889',
+    borderBottomWidth: 0,
+    position: 'absolute',
+    top: -7,
+    left: 0.5,
+  },
 });
 
 export default CreditCardScreen;
+
