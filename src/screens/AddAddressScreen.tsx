@@ -165,20 +165,21 @@ const styles = StyleSheet.create({
   backBtn: {
     position: 'absolute',
     left: 24,
-    top: Platform.OS === 'ios' ? 60 : 20,
-    height: 40,
+    top: Platform.OS === 'ios' ? 60 : 10,
+    // height: 40,
     justifyContent: 'center',
   },
   backArrow: {
     color: '#000000',
     fontSize: 28,
     fontWeight: '300',
-    lineHeight: 30,
+    // lineHeight: 30,
   },
   headerTitle: {
     color: '#000000',
     fontSize: 18,
     fontFamily: 'DMSans-Bold',
+    marginLeft: 10
   },
   scrollContent: {
     paddingTop: 10,

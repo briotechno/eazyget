@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backArrow: {
-    color: '#000000',
+    color: '#06161C',
     fontSize: 28,
     fontWeight: '300',
     lineHeight: 30,

@@ -57,17 +57,24 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
+  backArrow: { color: '#06161C', fontSize: 22, fontWeight: '300', lineHeight: 24 },
   headerTitle: { color: '#1a1a1a', fontSize: 20, fontFamily: 'DMSans-Bold', },
   scrollContent: { paddingBottom: 30 },
   orderCard: {
-    flexDirection: 'row', alignItems: 'center',
+    flexDirection: 'row',
+    // alignItems: 'center',
     // backgroundColor: '#ffffff', 
     borderRadius: 16,
-    padding: 12, marginBottom: 12, gap: 12,
+    padding: 12,
+    marginBottom: 12,
+    gap: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05, shadowRadius: 4,
+    // justifyContent: "center"
     //  elevation: 1,
+    borderColor: "#F1F1F5",
+    borderBottomWidth: 1,
+    paddingBottom: 0
   },
   orderImageBox: {
     width: 68, height: 68, backgroundColor: '#f0f1f5',

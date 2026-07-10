@@ -8,8 +8,9 @@ import {
   Dimensions,
   TextInput,
   PanResponder,
+  Image,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -35,7 +36,7 @@ const CATEGORIES = [
 ];
 
 const FilterScreen: React.FC<FilterScreenProps> = ({ onBack, onApply, onClear }) => {
-  const insets = useSafeAreaInsets();
+  // const insets = useSafeAreaInsets();
 
   // Selected values matching the screenshot defaults
   const [selectedSort, setSelectedSort] = useState<string>('avg_rating');
@@ -107,7 +108,9 @@ const FilterScreen: React.FC<FilterScreenProps> = ({ onBack, onApply, onClear })
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-            <ChevronLeft />
+            {/* <ChevronLeft /> */}
+            <Image source={require('../assets/icons/rounded-back.png')} style={{ height: 44, width: 44, resizeMode: "contain" }} />
+
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Apply Filter</Text>
         </View>
@@ -151,7 +154,7 @@ const FilterScreen: React.FC<FilterScreenProps> = ({ onBack, onApply, onClear })
               Price : ${minPrice} - ${price}
             </Text>
           </View>
-
+          <View style={{ height: 1, backgroundColor: '#EBEBEB', width: "100%" }} />
           {/* Default Sorting Section */}
           <Text style={styles.sectionTitle}>Default Sorting</Text>
           <View style={styles.sortGrid}>
@@ -176,6 +179,7 @@ const FilterScreen: React.FC<FilterScreenProps> = ({ onBack, onApply, onClear })
               </TouchableOpacity>
             ))}
           </View>
+          <View style={{ height: 1, backgroundColor: '#EBEBEB', width: "100%" }} />
 
           {/* Categories Section */}
           <Text style={styles.sectionTitle}>Categories</Text>
@@ -238,7 +242,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     backgroundColor: '#ffffff',
-    padding: 24
+    // padding: 24
   },
   header: {
     flexDirection: 'row',
@@ -246,6 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // paddingVertical: 16,
     position: 'relative',
+    margin: 24
   },
   backBtn: {
     position: 'absolute',
@@ -253,16 +258,16 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
+    // // backgroundColor: '#ffffff',
+    // borderWidth: 1,
+    // borderColor: '#f1f5f9',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.05,
+    // shadowRadius: 3,
+    // elevation: 2,
   },
   chevron: {
     width: 10,
@@ -284,14 +289,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 15,
     color: '#000000',
-    marginTop: 24,
-    marginBottom: 12,
+    marginTop: 10,
     fontFamily: 'Poppins-Bold',
+    marginHorizontal: 24
   },
 
   // Slider styles
   sliderContainer: {
     marginVertical: 4,
+    margin: 24
   },
   sliderTrack: {
     height: 8,
@@ -328,11 +334,12 @@ const styles = StyleSheet.create({
   },
   inputBox: {
     flex: 1,
-    height: 48,
+    height: 42,
     backgroundColor: '#F4F5F9',
-    borderRadius: 12,
+    borderRadius: 10,
     justifyContent: 'center',
-    padding: 13
+    paddingHorizontal: 16
+    // padding: 13
     // alignItems: 'center',
   },
   inputText: {
@@ -356,6 +363,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     rowGap: 12,
+    marginHorizontal: 24,
+    marginTop: 10,
+    marginBottom: 10
   },
   sortChip: {
     backgroundColor: '#f4f4f6',
@@ -364,7 +374,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    height: 42,
   },
   sortChipActive: {
     backgroundColor: '#1ea950',
@@ -387,15 +397,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     rowGap: 12,
+    margin: 24
   },
   categoryChip: {
     width: '48.5%',
     backgroundColor: '#f4f4f6',
     borderRadius: 12,
-    paddingVertical: 14,
+    // paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 52,
+    height: 42,
   },
   categoryChipActive: {
     backgroundColor: '#1ea950',
@@ -415,6 +426,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginTop: 16,
+    margin: 24
   },
   actionBtn: {
     flex: 1,

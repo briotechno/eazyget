@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView,
   TouchableOpacity, Dimensions,
   Image,
+  Platform,
 } from 'react-native';
 import MeatImage from '../components/MeatImage';
 
@@ -30,26 +31,29 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Text style={styles.backArrow}>‹</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBtn}>
-          <Image source={require('../assets/icons/search-black.png')} style={styles.searchIcon} />
-          {/* <Text style={styles.searchIcon}>🔍</Text> */}
-        </TouchableOpacity>
-      </View>
-
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Product Image */}
-        <View style={styles.imageContainer}>
-          <TouchableOpacity style={styles.heartBtn}>
-            <Image source={require('../assets/icons/heart-img.png')} style={styles.heart} />
-            {/* <Text style={styles.heart}>♡</Text> */}
-          </TouchableOpacity>
-          <Image source={require('../assets/Beef-Boneless.png')} style={styles.productImage} />
-          {/* <MeatImage type={product.type} size={200} /> */}
+        {/* Top Curved Section */}
+        <View style={styles.topSection}>
+          <View style={styles.innerContent}>
+            {/* Header */}
+            <View style={styles.header}>
+              <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+                <Image source={require('../assets/icons/rounded-back.png')} style={styles.backIcon} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.searchBtn}>
+                <Image source={require('../assets/icons/search-black.png')} style={styles.searchIcon} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Product Image Wrapper */}
+            <View style={styles.imageWrapper}>
+              <Image source={require('../assets/Beef-Boneless.png')} style={styles.productImage} />
+
+              <TouchableOpacity style={styles.heartBtn}>
+                <Image source={require('../assets/icons/heart-img.png')} style={styles.heart} />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* Product Info */}
@@ -114,55 +118,94 @@ const ItemDetailsScreen: React.FC<ItemDetailsScreenProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
-  header: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', paddingHorizontal: 16, paddingTop: 20, paddingBottom: 12,
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  topSection: {
+    width: width * 1.5,
+    height: 300,
+    backgroundColor: '#F5F6FA',
+    borderBottomLeftRadius: width * 0.75,
+    borderBottomRightRadius: width * 0.75,
+    alignSelf: 'center',
+    overflow: 'hidden',
   },
-  productImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "contain"
+  innerContent: {
+    width: width,
+    height: '100%',
+    alignSelf: 'center',
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    height: 50,
   },
   backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
+  backIcon: {
+    width: 44,
+    height: 44,
+    resizeMode: 'contain',
+  },
   searchBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   searchIcon: {
-    height: 13,
-    resizeMode: "contain"
+    width: 16,
+    height: 16,
+    resizeMode: 'contain',
   },
-  scrollContent: { paddingBottom: 100 },
-  imageContainer: {
-    height: 260, backgroundColor: '#f0f1f5',
-    justifyContent: 'center', alignItems: 'center',
-    marginHorizontal: 16, borderRadius: 20,
-    marginBottom: 24, position: 'relative',
+  imageWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    paddingBottom: 20,
+  },
+  productImage: {
+    width: 240,
+    height: 240,
+    resizeMode: 'contain',
   },
   heartBtn: {
     position: 'absolute',
-    top: 30,
-    right: 10,
-    zIndex: 2,
-    backgroundColor: "#FFFFFF",
-    width: 33,
-    height: 33,
+    right: 20,
+    top: 20,
+    backgroundColor: '#FFFFFF',
+    width: 36,
+    height: 36,
     borderRadius: 18,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   heart: {
-    height: 15,
-    width: 13,
-    resizeMode: "contain",
-    tintColor: "#EEEEEE"
+    width: 14,
+    height: 12,
+    resizeMode: 'contain',
+    tintColor: '#EEEEEE',
   },
-  infoSection: { paddingHorizontal: 20 },
+  scrollContent: { paddingBottom: 110 },
+  infoSection: { paddingHorizontal: 20, marginTop: 24 },
   titleRow: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: 6,
@@ -198,13 +241,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#FFF', borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 10,
-    width: (width - 56) / 2,
+    width: (width - 52) / 2,
+    borderWidth: 1,
+    borderColor: '#F1F1F5',
   },
   badgeIcon: { width: 35, height: 35, resizeMode: 'contain' },
   badgeTitle: {
     color: '#23AA49', fontSize: 16,
     fontFamily: 'DMSans-Bold',
-
   },
   badgeSub: {
     color: '#888', fontSize: 14,

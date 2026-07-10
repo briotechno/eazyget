@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backArrow: {
-    color: '#000000',
+    color: '#06161C',
     fontSize: 28,
     fontWeight: '300',
     lineHeight: 30,
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   avatarWrapper: {
     position: 'relative',
-    marginBottom: 16,
+    marginBottom: 1,
   },
   avatarContainer: {
     width: 140,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 24,
     fontFamily: 'DMSans-Bold',
-    marginBottom: 4,
+    // marginBottom: 1,
   },
   userEmail: {
     color: '#9E9E9E',
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
   },
   menuArrow: {
     color: '#868889',
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '300',
   },
   logoutBtn: {
@@ -452,8 +452,8 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontFamily: 'DMSans-Bold',
   },
   profileImage: {
     width: 146,

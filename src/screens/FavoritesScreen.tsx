@@ -34,9 +34,10 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onProductPres
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+        <Image source={require('../assets/icons/rounded-back.png')} style={{ height: 44, width: 44, resizeMode: "contain" }} />
+        {/* <TouchableOpacity style={styles.backBtn} onPress={onBack}>
           <Text style={styles.backArrow}>‹</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <Text style={styles.headerTitle}>Favorites</Text>
         <View style={{ width: 36 }} />
       </View>
@@ -51,8 +52,7 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onProductPres
           >
             <View style={styles.imageBox}>
               <Image source={product.image} style={styles.productImg} />
-              {/* <MeatImage type={product.type} size={90} /> */}
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.heartBtn}
                 onPress={() => toggleFavorite(product.id)}
               >
@@ -62,7 +62,7 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onProductPres
                 ]}>
                   {favorites.includes(product.id) ? '♥' : '♡'}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <Text style={styles.productName}>{product.name}</Text>
             <View style={styles.productFooter}>
@@ -79,7 +79,7 @@ const FavoritesScreen: React.FC<FavoritesScreenProps> = ({ onBack, onProductPres
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
+  container: { flex: 1, backgroundColor: '#FFF' },
   header: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', paddingHorizontal: 16,
@@ -89,16 +89,17 @@ const styles = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18,
     backgroundColor: '#f0f1f5', justifyContent: 'center', alignItems: 'center',
   },
-  backArrow: { color: '#1a1a1a', fontSize: 22, fontWeight: '300', lineHeight: 24 },
+  backArrow: { color: '#06161C', fontSize: 22, fontWeight: '300', lineHeight: 24 },
   headerTitle: { color: '#1a1a1a', fontSize: 20, fontFamily: 'DMSans-Bold', },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: 16, gap: 16, paddingBottom: 24,
   },
   productCard: {
-    width: CARD_WIDTH, backgroundColor: '#F3F5F7', borderRadius: 16, padding: 12,
+    width: CARD_WIDTH, backgroundColor: '#f3f5f7', borderRadius: 16, padding: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
+    shadowOpacity: 0.06, shadowRadius: 6,
+    // elevation: 2,
   },
   imageBox: {
     width: '100%', height: 110, backgroundColor: '#F3F5F7',

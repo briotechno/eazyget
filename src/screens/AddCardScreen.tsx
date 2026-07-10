@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, KeyboardAvoidingView, Platform, Dimensions,
+  Image,
 } from 'react-native';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -128,42 +129,7 @@ const AddCardScreen: React.FC<AddCardScreenProps> = ({ onBack, onSave }) => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Card Preview */}
-        <View style={styles.cardPreview}>
-          {/* Lighter green background circles */}
-          <View style={styles.cardCircle1} />
-          <View style={styles.cardCircle2} />
-          <View style={styles.cardCircle3} />
-
-          {/* Accent Diamonds */}
-          <View style={styles.redDiamond} />
-          <View style={styles.orangeDiamond} />
-
-          {/* Card Top Row */}
-          <View style={styles.cardTopRow}>
-            {/* Mastercard overlapping circles */}
-            <View style={styles.mastercardLogo}>
-              <View style={[styles.masterCircle, { backgroundColor: '#EB001B' }]} />
-              <View style={[styles.masterCircle, { backgroundColor: '#F79E1B', marginLeft: -12 }]} />
-            </View>
-            {/* Ellipsis Menu */}
-            <Text style={styles.moreIcon}>⋮</Text>
-          </View>
-
-          {/* Card Number */}
-          <Text style={styles.cardNumberDisplay}>{displayCardNumber}</Text>
-
-          {/* Card Meta Row */}
-          <View style={styles.cardMetaRow}>
-            <View>
-              <Text style={styles.cardMetaLabel}>CARD HOLDER</Text>
-              <Text style={styles.cardMetaValue}>{displayCardName}</Text>
-            </View>
-            <View style={styles.expiryCol}>
-              <Text style={styles.cardMetaLabel}>EXPIRES</Text>
-              <Text style={styles.cardMetaValue}>{displayExpiry}</Text>
-            </View>
-          </View>
-        </View>
+        <Image source={require('../assets/card-image.png')} style={styles.cardImage} />
 
         {/* Form Fields */}
         <View style={styles.formSection}>
@@ -291,9 +257,9 @@ const styles = StyleSheet.create({
   backBtn: {
     position: 'absolute',
     left: 24,
-    top: Platform.OS === 'ios' ? 60 : 20,
-    height: 40,
-    justifyContent: 'center',
+    // top: Platform.OS === 'ios' ? 60 : 20,
+    // height: 40,
+    // justifyContent: 'center',
   },
   backArrow: {
     color: '#000000',
@@ -309,11 +275,18 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 10,
     paddingBottom: 100,
+    paddingHorizontal: 5
+  },
+  cardImage: {
+    height: 189,
+    width: "99.5%",
+    resizeMode: "contain",
+    marginBottom: 28
   },
   cardPreview: {
-    marginHorizontal: 24,
+    marginHorizontal: 5,
     marginBottom: 28,
-    height: 200,
+    height: 189,
     borderRadius: 20,
     backgroundColor: '#23AA49', // Grass Green base
     padding: 24,
@@ -421,15 +394,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   formSection: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 15,
   },
   inputField: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F5FA',
-    borderRadius: 15,
+    backgroundColor: '#F4F5F9',
+    borderRadius: 10,
     paddingHorizontal: 16,
-    marginBottom: 14,
+    marginBottom: 5,
+    height: 45
   },
   textInput: {
     flex: 1,
@@ -445,7 +419,7 @@ const styles = StyleSheet.create({
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 20,
   },
   switchTrack: {
     width: 44,

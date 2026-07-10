@@ -35,6 +35,19 @@ interface HomeScreenProps {
   onFavorites?: () => void;
 }
 
+const SteppedGradient = () => {
+  const colors = [
+    '#F2F4F7', '#F4F6F9', '#F6F8FA', '#F8FAFC', '#FAFBFD', '#FCFDFE', '#FFFFFF'
+  ];
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {colors.map((color, i) => (
+        <View key={i} style={{ flex: 1, backgroundColor: color }} />
+      ))}
+    </View>
+  );
+};
+
 const HomeScreen: React.FC<HomeScreenProps> = ({
   onProductPress,
   onAllProduct,
@@ -44,11 +57,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('home');
+  const [activeSlide, setActiveSlide] = useState(1);
+  const scrollViewRef = React.useRef<ScrollView>(null);
+
+  React.useEffect(() => {
+    const snapInterval = width - 52;
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        x: snapInterval,
+        animated: false,
+      });
+    }, 150);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Main card */}
       <View style={styles.card}>
+        {/* Gradient Background */}
+        <View style={styles.topGradientBg}>
+          <SteppedGradient />
+        </View>
+
         {/* Header inside card */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -80,21 +110,54 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          {/* Split Ramadan Offers Promo Banner */}
-          <View style={styles.promoBanner}>
-            <Image source={require('../assets/slider-1.png')} style={styles.promoBannerImage} />
-            {/* <View style={styles.promoLeftCardboard}>
-              <MeatImage type="beef_boneless" size={85} />
-              <Text style={styles.promoLabel}>Beef Boneless</Text>
+          {/* Split Ramadan Offers Promo Banner - Slider */}
+          <View style={styles.sliderContainer}>
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              decelerationRate="fast"
+              snapToInterval={width - 52}
+              snapToAlignment="center"
+              showsHorizontalScrollIndicator={false}
+              onScroll={(e) => {
+                const slide = Math.round(e.nativeEvent.contentOffset.x / (width - 52));
+                setActiveSlide(slide);
+              }}
+              scrollEventThrottle={16}
+              contentContainerStyle={styles.promoScrollContent}
+            >
+              {/* Slide 0 - Red Peek Card */}
+              <View style={styles.slide}>
+                <View style={[styles.promoBanner, { backgroundColor: '#FF6363', justifyContent: 'center', alignItems: 'center' }]}>
+                  <Text style={{ color: '#FFF', fontSize: 18, fontFamily: 'DMSans-Bold' }}>Special Meat Deals</Text>
+                  <Text style={{ color: '#FFF', fontSize: 12, fontFamily: 'DMSans-Medium', marginTop: 4 }}>Get up to 30% off</Text>
+                </View>
+              </View>
+
+              {/* Slide 1 - Main Ramadan Card */}
+              <View style={styles.slide}>
+                <View style={styles.promoBanner}>
+                  <Image source={require('../assets/slider-1.png')} style={styles.promoBannerImage} />
+                </View>
+              </View>
+
+              {/* Slide 2 - Avocado/Fruit Peek Card */}
+              <View style={styles.slide}>
+                <View style={[styles.promoBanner, { backgroundColor: '#E6F2EA', justifyContent: 'center', alignItems: 'center' }]}>
+                  <Text style={{ color: '#06161C', fontSize: 18, fontFamily: 'DMSans-Bold' }}>Fresh Vegetables</Text>
+                  <Text style={{ color: '#23AA49', fontSize: 12, fontFamily: 'DMSans-Medium', marginTop: 4 }}>Healthy & Organic</Text>
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* Paging Indicators */}
+            <View style={styles.paginationDots}>
+              <View style={[styles.dot, activeSlide === 0 && styles.dotActive]} />
+              <View style={[styles.dot, activeSlide === 1 && styles.dotActive]} />
+              <View style={[styles.dot, activeSlide === 2 && styles.dotActive]} />
             </View>
-            <View style={styles.promoRightPanel}>
-              <Text style={styles.promoSubtitle}>Ramadan Offers</Text>
-              <Text style={styles.promoTitleText}>Get 25%</Text>
-              <TouchableOpacity style={styles.promoPillBtn}>
-                <Text style={styles.promoPillText}>Grab Offer ⧁</Text>
-              </TouchableOpacity>
-            </View> */}
           </View>
+
           <View style={{ backgroundColor: "#FFF" }}>
             {/* Categories */}
             <View style={styles.sectionHeader}>
@@ -104,9 +167,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow}>
               {CATEGORIES.map(cat => (
                 <TouchableOpacity key={cat.id} style={styles.categoryItem} onPress={onAllProduct}>
-                  {/* <View style={styles.categoryCircle}> */}
-                  <Image source={cat.image} style={styles.categoryImage} />
-                  {/* </View> */}
+                  <View style={styles.categoryCircle}>
+                    <Image source={cat.image} style={styles.categoryImage} />
+                  </View>
                   <Text style={styles.categoryLabel}>{cat.label}</Text>
                 </TouchableOpacity>
               ))}
@@ -217,7 +280,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: '#FFFFFF',
   },
   smileImg: {
     width: 17,
@@ -231,15 +294,14 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   productImage: {
-    width: 134,
-    height: 134,
+    width: 90,
+    height: 90,
     resizeMode: 'contain',
   },
   categoryImage: {
-    width: 65,
-    height: 65,
+    width: "100%",
+    height: "100%",
     resizeMode: 'contain',
-    marginBottom: 12
   },
   navIcon: {
     width: 24,
@@ -256,11 +318,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#8e8e93',
   },
+  topGradientBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
+  },
   card: {
     flex: 1,
-    backgroundColor: '#F3F5F7',
-    // borderTopLeftRadius: 36,
-    // borderTopRightRadius: 36,
+    backgroundColor: '#FFFFFF',
     overflow: 'hidden',
     position: 'relative',
   },
@@ -359,22 +426,46 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     fontSize: 14,
     paddingVertical: 10,
+    fontFamily: 'DMSans-Medium',
   },
   scrollContent: {
     paddingBottom: 90,
   },
+  sliderContainer: {
+    marginBottom: 24,
+    position: 'relative',
+  },
+  promoScrollContent: {
+    paddingLeft: 32,
+    paddingRight: 20,
+  },
+  slide: {
+    width: width - 64,
+    marginRight: 12,
+  },
+  paginationDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+    gap: 6,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#CCD3DF',
+  },
+  dotActive: {
+    backgroundColor: '#23AA49',
+    width: 14,
+  },
   promoBanner: {
-    marginHorizontal: 16,
     borderRadius: 20,
     flexDirection: 'row',
-    height: 145,
+    height: 134,
+    width: '100%',
     overflow: 'hidden',
-    marginBottom: 24,
-    // shadowColor: '#000',
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.05,
-    // shadowRadius: 6,
-    // elevation: 2,
   },
   promoLeftCardboard: {
     flex: 1.1,
@@ -447,20 +538,20 @@ const styles = StyleSheet.create({
     // marginRight: 20,
   },
   categoryCircle: {
-    width: 72,
-    height: 72,
+    width: 65,
+    height: 65,
     borderRadius: 36,
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#f0f2f5',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    // borderWidth: 1,
+    // borderColor: '#f0f2f5',
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.03,
+    // shadowRadius: 4,
+    // elevation: 1,
   },
   categoryLabel: {
     color: '#06161C',
@@ -472,15 +563,15 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   productCard: {
-    width: 165,
+    width: 158,
     backgroundColor: '#F3F5F7',
     borderRadius: 10,
     padding: 12,
     marginRight: 16,
     // shadowColor: '#000',
     // shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
+    // shadowOpacity: 0.04,
+    // shadowRadius: 6,
     // elevation: 2,
   },
   productImageBox: {
@@ -495,8 +586,8 @@ const styles = StyleSheet.create({
   },
   heartCircle: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: -7,
+    right: -7,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -554,13 +645,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 75,
     paddingBottom: 16,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 10,
+    // borderTopLeftRadius: 24,
+    // borderTopRightRadius: 24,
+    // shadowColor: '#000',
+    // shadowOffset: { width: 0, height: -4 },
+    // shadowOpacity: 0.06,
+    // shadowRadius: 10,
+    // elevation: 10,
   },
   navTab: {
     flex: 1,
@@ -597,8 +688,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    bottom: -8,
-    // right: 0,
+    top: -4,
+    right: -4,
     backgroundColor: '#FF4B4B',
     width: 18,
     height: 18,

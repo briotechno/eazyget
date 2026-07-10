@@ -79,7 +79,7 @@ function App(): React.JSX.Element {
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Splash"
+          initialRouteName="Login"
           screenOptions={{ headerShown: false }}
         >
           {/* ── Auth flow ── */}

@@ -189,6 +189,12 @@ const CreditCardScreen: React.FC<CreditCardScreenProps> = ({ onBack, onAddCard, 
                   </Text>
                 </View>
               </TouchableOpacity>
+              <View style={{
+                height: 1,
+                width: "100%",
+                backgroundColor: "#EBEBEB",
+                marginTop: 29,
+              }} />
 
               {/* Expanded Card Edit Form */}
               {isExpanded && (
@@ -281,18 +287,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'ios' ? 60 : 20,
     paddingBottom: 16,
     position: 'relative',
   },
   backBtn: {
-    position: 'absolute',
-    left: 24,
-    top: Platform.OS === 'ios' ? 60 : 20,
-    height: 40,
-    justifyContent: 'center',
+    width: "20%",
+    // position: 'absolute',
+    // left: 24,
+    // top: Platform.OS === 'ios' ? 60 : 20,
+    // height: 40,
+    // justifyContent: 'center',
   },
   backArrow: {
     color: '#000000',
@@ -304,6 +310,8 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontSize: 18,
     fontFamily: 'DMSans-Bold',
+    width: "55%",
+    textAlign: "center"
   },
   addBtn: {
     position: 'absolute',
@@ -329,7 +337,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   cardItemWrapper: {
-    paddingHorizontal: 24,
+    // paddingHorizontal: 24,
     marginTop: 16,
   },
   defaultBadge: {
@@ -339,6 +347,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignSelf: 'flex-start',
     marginBottom: 8,
+    marginLeft: 7
   },
   defaultBadgeText: {
     color: '#23AA49',
@@ -348,6 +357,7 @@ const styles = StyleSheet.create({
   cardSummaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 24,
   },
   logoContainer: {
     width: 60,
@@ -423,13 +433,14 @@ const styles = StyleSheet.create({
   },
   editFormContainer: {
     marginTop: 16,
-    paddingLeft: 8,
+    // paddingLeft: 8,
+    paddingHorizontal: 24,
   },
   inputField: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F0F5FA',
-    borderRadius: 15,
+    borderRadius: 10,
     paddingHorizontal: 16,
     marginBottom: 14,
   },
@@ -442,7 +453,7 @@ const styles = StyleSheet.create({
   },
   rowFields: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 4,
   },
   toggleRow: {
     flexDirection: 'row',

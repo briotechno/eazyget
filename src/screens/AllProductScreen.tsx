@@ -36,7 +36,8 @@ const AllProductScreen: React.FC<AllProductScreenProps> = ({ onBack, onProductPr
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={onBack}>
-          <Text style={styles.backArrow}>‹</Text>
+          {/* <Text style={styles.backArrow}>‹</Text> */}
+          <Image source={require('../assets/icons/rounded-back.png')} style={{ height: 44, width: 44, resizeMode: "contain" }} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Product</Text>
         <TouchableOpacity style={styles.filterBtn} onPress={onFilter}>
@@ -86,7 +87,7 @@ const AllProductScreen: React.FC<AllProductScreenProps> = ({ onBack, onProductPr
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f6fa' },
+  container: { flex: 1, backgroundColor: '#FFF' },
   header: {
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', paddingHorizontal: 16,
@@ -109,9 +110,7 @@ const styles = StyleSheet.create({
   },
   productCard: {
     width: CARD_WIDTH,
-    backgroundColor: '#F3F5F7', borderRadius: 16, padding: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06, shadowRadius: 6, elevation: 2,
+    backgroundColor: '#F3F5F7', borderRadius: 10, padding: 12,
   },
   imageBox: {
     width: '100%', height: 110, backgroundColor: '#F3F5F7',
